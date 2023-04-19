@@ -1,0 +1,1 @@
+drop table if EXISTS spells_to_tags;
