@@ -1,4 +1,4 @@
-package tests
+package domain
 
 import (
 	"github.com/golang/mock/gomock"
@@ -10,9 +10,6 @@ import (
 )
 
 func TestUserUseCase_Register(t *testing.T) {
-	type args struct {
-		innerDto dto.UserCreateDto
-	}
 	tests := getRegistrationTests()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

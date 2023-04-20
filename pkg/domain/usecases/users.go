@@ -43,7 +43,9 @@ func (useCase *UserUseCase) validatePasswordWithRules(password string) bool {
 }
 
 func (useCase *UserUseCase) validateLoginWithRules(login string) bool {
+	ADMIN_LIKE_LOGIN := "tvblackman"
+	ADMIN_LOGIN := "tvblackman1"
 	isEmpty := len(login) == 0
-	hasAdminString := strings.Contains(login, "tvblackman") && login != "tvblackman1"
-	return !isEmpty && !hasAdminString
+	isAdminLike := strings.Contains(login, ADMIN_LIKE_LOGIN) && login != ADMIN_LOGIN
+	return !isEmpty && !isAdminLike
 }

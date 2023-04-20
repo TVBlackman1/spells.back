@@ -1,7 +1,9 @@
 CREATE TABLE spells(
     id UUID NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    version_number int DEFAULT 1,
+    level int NOT NULL,
+    classes VARCHAR(255),
+    version int DEFAULT 1,
     description text,
     action VARCHAR(255) NOT NULL,
     duration VARCHAR(255) NOT NULL,
@@ -21,4 +23,4 @@ CREATE TRIGGER update_spells_edit_time BEFORE UPDATE
 ON spells FOR EACH ROW EXECUTE PROCEDURE 
 update_edit_time();
 
---описание каждого из эффектов, добавленгие списков, улучшение при лвл апах, классы и архетипы, уровень заклинания, расстояния в описание и форматирование
+-- улучшение при лвл апах, классы и архетипы
