@@ -3,7 +3,7 @@ package usecases
 import (
 	"errors"
 	"github.com/google/uuid"
-	"spells.tvblackman1.ru/lib"
+	"spells.tvblackman1.ru/lib/hash"
 	"spells.tvblackman1.ru/pkg/domain/boundaries"
 	"spells.tvblackman1.ru/pkg/domain/dto"
 	"strings"
@@ -24,7 +24,7 @@ func (useCase *UserUseCase) Register(innerDto dto.UserCreateDto) error {
 	if !useCase.validateLoginWithRules(innerDto.Login) {
 		return errors.New("bad login")
 	}
-	encryptedPassword, err := lib.HashPassword(innerDto.Password)
+	encryptedPassword, err := hash.HashPassword(innerDto.Password)
 	if err != nil {
 		return err
 	}

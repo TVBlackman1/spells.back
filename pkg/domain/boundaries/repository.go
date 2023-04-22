@@ -37,7 +37,7 @@ type SetsRepository interface {
 }
 
 type SpellsRepository interface {
-	CreateSpell(spellDto dto.SpellToRepositoryDto)
+	CreateSpell(spellDto dto.SpellToRepositoryDto) error
 	GetById(id dto.SpellId) dto.SpellDto
 	GetSpells(params dto.SearchSpellDto) []dto.SpellDto
 	//UpdateSpell(userId dto.UserId, spellDto dto.CreateSpellDto)

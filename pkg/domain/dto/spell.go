@@ -48,7 +48,7 @@ type CreateSpellDto struct {
 	Level                int
 	Classes              []string
 	Description          string
-	Action               string
+	CastingTime          string
 	Duration             string
 	IsVerbal             bool
 	IsSomatic            bool
@@ -67,7 +67,7 @@ type SpellToRepositoryDto struct {
 	Classes              []string
 	Version              int
 	Description          string
-	Action               string
+	CastingTime          string
 	Duration             string
 	IsVerbal             bool
 	IsSomatic            bool

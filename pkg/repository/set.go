@@ -3,14 +3,16 @@ package repository
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"spells.tvblackman1.ru/pkg/domain/dto"
 )
 
 type SetsRepository struct {
+	db *sqlx.DB
 }
 
-func NewSetsRepository() *SetsRepository {
-	return &SetsRepository{}
+func NewSetsRepository(db *sqlx.DB) *SetsRepository {
+	return &SetsRepository{db}
 }
 
 func (rep *SetsRepository) CreateSet(setDto dto.SetToRepositoryDto) {

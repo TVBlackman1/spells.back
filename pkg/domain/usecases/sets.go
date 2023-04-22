@@ -40,6 +40,7 @@ func (usecase *SetUseCase) EditSpellList(userId dto.UserId, setId dto.SetId, spe
 	if set.UserId != userId {
 		return errors.New("not valid user")
 	}
+
 	usecase.repository.Sets.UpdateSpellList(setId, spells)
 	return nil
 }
