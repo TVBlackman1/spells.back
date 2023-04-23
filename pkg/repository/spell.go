@@ -17,7 +17,6 @@ func NewSpellsRepository(db *sqlx.DB) *SpellsRepository {
 }
 
 func (rep *SpellsRepository) CreateSpell(spellDto dto.SpellToRepositoryDto) error {
-	println("!#!#@")
 	request := fmt.Sprintf("INSERT INTO %s(id, name, level, "+
 		"description, classes, casting_time, duration, is_verbal, is_somatic, is_material, material_content, magical_school, "+
 		"distance, is_ritual, source_id) VALUES ('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%t', '%t', '%t', '%s', "+
@@ -39,13 +38,12 @@ func (rep *SpellsRepository) CreateSpell(spellDto dto.SpellToRepositoryDto) erro
 		spellDto.IsRitual,
 		uuid.UUID(spellDto.SourceId).String(),
 	)
-	fmt.Println(request)
 	var uuidStr string
 	err := rep.db.Get(&uuidStr, request)
 	if err != nil {
+		fmt.Println(request)
 		return err
 	}
-	fmt.Printf("created: %+v", uuidStr)
 	return nil
 }
 

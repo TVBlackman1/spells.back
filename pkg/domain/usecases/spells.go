@@ -26,7 +26,6 @@ func (usecase *SpellUseCase) CreateSpell(userId dto.UserId, spellDto dto.CreateS
 			return errors.New("not valid material component")
 		}
 	}
-	println("!!")
 
 	dataToWrite := dto.SpellToRepositoryDto{
 		Id:                   dto.SpellId(uuid.New()),
