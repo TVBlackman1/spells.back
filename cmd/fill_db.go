@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/google/uuid"
+	"github.com/gofrs/uuid"
 	"golang.org/x/exp/slices"
 	"log"
 	"os"
@@ -44,16 +44,57 @@ func main() {
 	}
 	data := importer.GetSpellsData(file)
 	fmt.Println(len(data.AllSpells))
-	//for _, school := range data.SchoolList {
-	//	fmt.Println(school.Text.Ru.Title)
+	//user, err := registerDefaultUser(useCases)
+	//if err != nil {
+	//	fmt.Println(err)
 	//}
-	for ind, spell := range data.AllSpells {
+	uuidReady, _ := uuid.FromString("4366cc02-5150-4686-ba62-954f88a112cd")
+	customUserId := dto.UserId(uuidReady)
+	//uploadSourcesToDb(customUserId, useCases, data)
+	//uploadSourcesToDb(user.Id, useCases, data)
+	//aliasSourceToId := getSourceIds(useCases, data.SourceList)
+	//for name, id := range aliasSourceToId {
+	//	fmt.Println(name, id)
+	//}
+	uploadSpellsToDb(customUserId, useCases, data)
+
+}
+
+func uploadSourcesToDb(userId dto.UserId, useCases *usecases.UseCases, data *importer.MainStructure) {
+	for sourceName, source := range data.SourceList {
+		useCases.Source.CreateSource(userId, dto.SourceCreateDto{
+			Name:        sourceName,
+			Description: source.Text.Ru.Title,
+			IsOfficial:  source.Official,
+		})
+	}
+}
+
+func uploadSpellsToDb(userId dto.UserId, useCases *usecases.UseCases, data *importer.MainStructure) {
+	aliasSourceToId := getSourceIds(useCases, data.SourceList)
+	for ind, spell := range data.AllSpells[0:498] {
+		//if spell.En.Name != "Earth Tremor" {
+		//	continue
+		//}
 		ruSpell := spell.Ru
-		spellLevel, err := ruSpell.Level.Int64()
+		spellSourceNames := func() string {
+			if len(spell.Ru.Source) == 0 {
+				return spell.En.Source
+			} else {
+				return spell.Ru.Source
+			}
+		}()
+		spellLevel, err := spell.En.Level.Int64()
 		if err != nil {
-			fmt.Errorf("not valid spell level: %s of spell %s", ruSpell.Level.String(), ruSpell.Name)
+			fmt.Printf("not valid spell level: %s of spell %s\n", ruSpell.Level.String(), ruSpell.Name)
+			continue
 		}
-		err = useCases.Spell.CreateSpell(dto.UserId(uuid.New()), dto.CreateSpellDto{
+		sourceIds, err := aliasSourcesToIds(strings.Split(spellSourceNames, ", "), aliasSourceToId)
+		if err != nil {
+			fmt.Printf(err.Error())
+			continue
+		}
+		err = useCases.Spell.CreateSpell(userId, dto.CreateSpellDto{
 			Name:                 ruSpell.Name,
 			Level:                int(spellLevel),
 			Classes:              []string{},
@@ -67,53 +108,48 @@ func main() {
 			MagicalSchool:        ruSpell.School,
 			Distance:             ruSpell.Range,
 			IsRitual:             len(ruSpell.Ritual) > 0,
-			SourceId:             dto.SourceId{},
+			SourceIds:            sourceIds,
 		})
 		if err != nil {
-			file, _err := os.Create("output.txt")
-			fmt.Fprintf(file, "%+v", dto.CreateSpellDto{
-				Name:                 ruSpell.Name,
-				Level:                int(spellLevel),
-				Classes:              []string{"Warrior", "Druid"},
-				Description:          strings.Replace(ruSpell.Text, "'", "", -1),
-				CastingTime:          ruSpell.CastingTime,
-				Duration:             ruSpell.Duration,
-				IsVerbal:             slices.Contains(strings.Split(ruSpell.Components, ", "), "В"),
-				IsSomatic:            slices.Contains(strings.Split(ruSpell.Components, ", "), "С"),
-				HasMaterialComponent: slices.Contains(strings.Split(ruSpell.Components, ", "), "М"),
-				MaterialComponent:    ruSpell.Materials,
-				MagicalSchool:        ruSpell.School,
-				Distance:             ruSpell.Range,
-				IsRitual:             len(ruSpell.Ritual) > 0,
-				SourceId:             dto.SourceId{},
-			})
-			if _err != nil {
-
-			}
 			log.Fatal(err)
 		}
 		if ind%20 == 0 {
 			fmt.Printf("%d/%d\n", ind, len(data.AllSpells))
 		}
 	}
-	//err = useCases.Spell.CreateSpell(dto.UserId(uuid.New()), dto.CreateSpellDto{
-	//	Name:                 "first",
-	//	Level:                0,
-	//	Classes:              []string{"Warrior", "Druid"},
-	//	Description:          "About this",
-	//	CastingTime:          "1 action",
-	//	Duration:             "30 sec",
-	//	IsVerbal:             false,
-	//	IsSomatic:            true,
-	//	HasMaterialComponent: false,
-	//	MaterialComponent:    "asd",
-	//	MagicalSchool:        "illusion",
-	//	Distance:             "30 feet",
-	//	IsRitual:             true,
-	//	SourceId:             dto.SourceId{},
-	//})
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+}
 
+func registerDefaultUser(useCases *usecases.UseCases) (dto.UserDto, error) {
+	return useCases.User.Register(dto.UserCreateDto{
+		Login:    "tvblackman1",
+		Password: "120474ba",
+	})
+}
+
+func getSourceIds(useCases *usecases.UseCases, sources map[string]importer.Source) map[string]dto.SourceId {
+	aliases := make(map[string]dto.SourceId)
+	for sourceName := range sources {
+		similarSources, _ := useCases.Source.GetSources(dto.UserId{}, dto.SearchSourceDto{
+			Name: sourceName,
+		})
+		for _, source := range similarSources {
+			if source.Name == sourceName {
+				aliases[source.Name] = source.Id
+			}
+		}
+	}
+	return aliases
+}
+
+func aliasSourcesToIds(sources []string, alias map[string]dto.SourceId) ([]dto.SourceId, error) {
+	ret := make([]dto.SourceId, len(sources))
+	for i, source := range sources {
+		var ok bool
+		ret[i], ok = alias[source]
+		if !ok {
+			return []dto.SourceId{}, fmt.Errorf("bad source name: %s", source)
+		}
+
+	}
+	return ret, nil
 }

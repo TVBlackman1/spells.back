@@ -29,3 +29,11 @@ type SourceToRepositoryDto struct {
 	IsOfficial  bool
 	Author      string
 }
+
+type SearchSourceDto struct {
+	Name                  string
+	CurrentUser           UserId
+	IsOfficial            bool
+	UploadedByCurrentUser bool
+	ExternLibs            bool
+}

@@ -14,13 +14,15 @@ type TagsRepository interface {
 }
 
 type UsersRepository interface {
-	CreateUser(dto dto.UserToRepositoryDto)
-	GetById(id dto.UserId) dto.UserDto
+	CreateUser(dto dto.UserToRepositoryDto) error
+	GetById(id dto.UserId) (dto.UserDto, error)
+	GetUsers(params dto.SearchUserDto) ([]dto.UserDto, error)
 }
 
 type SourcesRepository interface {
-	CreateSource(sourceDto dto.SourceToRepositoryDto)
+	CreateSource(sourceDto dto.SourceToRepositoryDto) error
 	GetById(id dto.SourceId) dto.SourceDto
+	GetSources(userId dto.UserId, params dto.SearchSourceDto) ([]dto.SourceDto, error)
 	//AddCustomSourceToUser(userId dto.UserId, dto.SourceId)
 	//CreateCopyWithNextVersion(userId dto.UserId, id dto.SourceId)
 	//CloneSource(userId dto.UserId, id dto.SourceId)

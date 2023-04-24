@@ -58,9 +58,11 @@ func (m *MockUsersRepository) EXPECT() *MockUsersRepositoryMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockUsersRepository) CreateUser(dto dto.UserToRepositoryDto) {
+func (m *MockUsersRepository) CreateUser(dto dto.UserToRepositoryDto) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "CreateUser", dto)
+	ret := m.ctrl.Call(m, "CreateUser", dto)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // CreateUser indicates an expected call of CreateUser.
@@ -70,17 +72,33 @@ func (mr *MockUsersRepositoryMockRecorder) CreateUser(dto interface{}) *gomock.C
 }
 
 // GetById mocks base method.
-func (m *MockUsersRepository) GetById(id dto.UserId) dto.UserDto {
+func (m *MockUsersRepository) GetById(id dto.UserId) (dto.UserDto, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetById", id)
 	ret0, _ := ret[0].(dto.UserDto)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
 func (mr *MockUsersRepositoryMockRecorder) GetById(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockUsersRepository)(nil).GetById), id)
+}
+
+// GetUsers mocks base method.
+func (m *MockUsersRepository) GetUsers(params dto.SearchUserDto) ([]dto.UserDto, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsers", params)
+	ret0, _ := ret[0].([]dto.UserDto)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockUsersRepositoryMockRecorder) GetUsers(params interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockUsersRepository)(nil).GetUsers), params)
 }
 
 // MockSourcesRepository is a mock of SourcesRepository interface.
@@ -107,9 +125,11 @@ func (m *MockSourcesRepository) EXPECT() *MockSourcesRepositoryMockRecorder {
 }
 
 // CreateSource mocks base method.
-func (m *MockSourcesRepository) CreateSource(sourceDto dto.SourceToRepositoryDto) {
+func (m *MockSourcesRepository) CreateSource(sourceDto dto.SourceToRepositoryDto) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "CreateSource", sourceDto)
+	ret := m.ctrl.Call(m, "CreateSource", sourceDto)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // CreateSource indicates an expected call of CreateSource.
@@ -130,6 +150,21 @@ func (m *MockSourcesRepository) GetById(id dto.SourceId) dto.SourceDto {
 func (mr *MockSourcesRepositoryMockRecorder) GetById(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockSourcesRepository)(nil).GetById), id)
+}
+
+// GetSources mocks base method.
+func (m *MockSourcesRepository) GetSources(userId dto.UserId, params dto.SearchSourceDto) ([]dto.SourceDto, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSources", userId, params)
+	ret0, _ := ret[0].([]dto.SourceDto)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSources indicates an expected call of GetSources.
+func (mr *MockSourcesRepositoryMockRecorder) GetSources(userId, params interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSources", reflect.TypeOf((*MockSourcesRepository)(nil).GetSources), userId, params)
 }
 
 // MockSetsRepository is a mock of SetsRepository interface.
@@ -271,9 +306,11 @@ func (m *MockSpellsRepository) EXPECT() *MockSpellsRepositoryMockRecorder {
 }
 
 // CreateSpell mocks base method.
-func (m *MockSpellsRepository) CreateSpell(spellDto dto.SpellToRepositoryDto) {
+func (m *MockSpellsRepository) CreateSpell(spellDto dto.SpellToRepositoryDto) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "CreateSpell", spellDto)
+	ret := m.ctrl.Call(m, "CreateSpell", spellDto)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // CreateSpell indicates an expected call of CreateSpell.

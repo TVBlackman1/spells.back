@@ -2,7 +2,7 @@ CREATE TABLE users(
     id UUID NOT NULL PRIMARY KEY,
     login VARCHAR(50) NOT NULL,
     hash_password VARCHAR(255) NOT NULL,
-    email VARCHAR(50) NOT NULL,
+    email VARCHAR(50),
     created timestamp DEFAULT CURRENT_TIMESTAMP,
     edited timestamp DEFAULT CURRENT_TIMESTAMP
 );

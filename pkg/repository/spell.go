@@ -17,9 +17,19 @@ func NewSpellsRepository(db *sqlx.DB) *SpellsRepository {
 }
 
 func (rep *SpellsRepository) CreateSpell(spellDto dto.SpellToRepositoryDto) error {
+	sourceIds := new(strings.Builder)
+	sourceIds.WriteByte('{')
+
+	sourceIdsSrt := make([]string, len(spellDto.SourceIds))
+	for i, id := range spellDto.SourceIds {
+		sourceIdsSrt[i] = uuid.UUID(id).String()
+	}
+	sourceIds.WriteString(strings.Join(sourceIdsSrt, ", "))
+	sourceIds.WriteByte('}')
+
 	request := fmt.Sprintf("INSERT INTO %s(id, name, level, "+
 		"description, classes, casting_time, duration, is_verbal, is_somatic, is_material, material_content, magical_school, "+
-		"distance, is_ritual, source_id) VALUES ('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%t', '%t', '%t', '%s', "+
+		"distance, is_ritual, source_ids) VALUES ('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%t', '%t', '%t', '%s', "+
 		"'%s', '%s', '%t', '%s') RETURNING id;\n",
 		SpellsDbName,
 		uuid.UUID(spellDto.Id).String(),
@@ -36,7 +46,7 @@ func (rep *SpellsRepository) CreateSpell(spellDto dto.SpellToRepositoryDto) erro
 		spellDto.MagicalSchool,
 		spellDto.Distance,
 		spellDto.IsRitual,
-		uuid.UUID(spellDto.SourceId).String(),
+		sourceIds.String(),
 	)
 	var uuidStr string
 	err := rep.db.Get(&uuidStr, request)

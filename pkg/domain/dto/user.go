@@ -21,3 +21,8 @@ type UserToRepositoryDto struct {
 	HashedPassword string
 	Email          string
 }
+
+type SearchUserDto struct {
+	Id    UserId
+	Login string
+}

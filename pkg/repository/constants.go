@@ -1,5 +1,7 @@
 package repository
 
 const (
-	SpellsDbName = "spells"
+	SpellsDbName  = "spells"
+	SourcesDbName = "sources"
+	UsersDbName   = "users"
 )

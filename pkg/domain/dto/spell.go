@@ -21,7 +21,7 @@ type SpellDto struct {
 	MagicalSchool        string
 	Distance             string
 	IsRitual             bool
-	SourceId             SourceId
+	SourceIds            []SourceId
 }
 
 type SetSpellDto struct {
@@ -57,7 +57,7 @@ type CreateSpellDto struct {
 	MagicalSchool        string
 	Distance             string
 	IsRitual             bool
-	SourceId             SourceId
+	SourceIds            []SourceId
 }
 
 type SpellToRepositoryDto struct {
@@ -76,7 +76,7 @@ type SpellToRepositoryDto struct {
 	MagicalSchool        string
 	Distance             string
 	IsRitual             bool
-	SourceId             SourceId
+	SourceIds            []SourceId
 }
 
 type SearchSpellDto struct {

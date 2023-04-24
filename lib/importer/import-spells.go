@@ -9,8 +9,8 @@ import (
 
 // structure from http://tentaculus.ru/spells/
 
-func GetSpellsData(r io.Reader) *mainStructure {
-	res := new(mainStructure)
+func GetSpellsData(r io.Reader) *MainStructure {
+	res := new(MainStructure)
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r)
@@ -28,10 +28,10 @@ func GetSpellsData(r io.Reader) *mainStructure {
 	return res
 }
 
-type mainStructure struct {
-	SourceList map[string]source    `json:"sourceList"`
-	SchoolList map[string]school    `json:"schoolList"`
-	OLanguages map[string]languages `json:"oLanguages"`
+type MainStructure struct {
+	SourceList map[string]Source    `json:"sourceList"`
+	SchoolList map[string]School    `json:"schoolList"`
+	OLanguages map[string]Languages `json:"oLanguages"`
 	AllSpells  []struct {
 		En spell `json:"en"`
 		Ru spell `json:"ru"`
@@ -39,21 +39,21 @@ type mainStructure struct {
 	//LockedItems interface{} `json:"lockedItems"`
 }
 
-type source struct {
+type Source struct {
 	Text     titledText `json:"text"`
 	Official bool       `json:"official"`
 	Checked  bool       `json:"checked"`
 	Visible  bool       `json:"visible"`
 }
 
-type school struct {
+type School struct {
 	Text    titledText `json:"text"`
 	Checked bool       `json:"checked"`
 	Visible bool       `json:"visible"`
 	I       int        `json:"i"`
 }
 
-type languages struct {
+type Languages struct {
 	Text titledText `json:"text"`
 }
 
