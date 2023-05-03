@@ -5,8 +5,8 @@
 
 
 db_username=postgres
-db_password=96pS1vO
-host=tvblackman1.ru
+db_password=Y8NF3ba6oXDz
+host=localhost
 port=5432
 db_name=dnd_spells
 

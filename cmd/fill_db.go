@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/gofrs/uuid"
 	"golang.org/x/exp/slices"
 	"log"
 	"os"
@@ -44,19 +43,16 @@ func main() {
 	}
 	data := importer.GetSpellsData(file)
 	fmt.Println(len(data.AllSpells))
-	//user, err := registerDefaultUser(useCases)
-	//if err != nil {
-	//	fmt.Println(err)
-	//}
-	uuidReady, _ := uuid.FromString("4366cc02-5150-4686-ba62-954f88a112cd")
-	customUserId := dto.UserId(uuidReady)
-	//uploadSourcesToDb(customUserId, useCases, data)
-	//uploadSourcesToDb(user.Id, useCases, data)
-	//aliasSourceToId := getSourceIds(useCases, data.SourceList)
-	//for name, id := range aliasSourceToId {
-	//	fmt.Println(name, id)
-	//}
-	uploadSpellsToDb(customUserId, useCases, data)
+	user, err := setUser(useCases)
+	if err != nil {
+		fmt.Println(err)
+	}
+	uploadSourcesToDb(user.Id, useCases, data)
+	aliasSourceToId := getSourceIds(useCases, data.SourceList)
+	for name, id := range aliasSourceToId {
+		fmt.Println(name, id)
+	}
+	//uploadSpellsToDb(user.Id, useCases, data)
 
 }
 
@@ -120,6 +116,24 @@ func uploadSpellsToDb(userId dto.UserId, useCases *usecases.UseCases, data *impo
 }
 
 func registerDefaultUser(useCases *usecases.UseCases) (dto.UserDto, error) {
+	return useCases.User.Register(dto.UserCreateDto{
+		Login:    "tvblackman1",
+		Password: "120474ba",
+	})
+}
+
+func setUser(useCases *usecases.UseCases) (dto.UserDto, error) {
+	users, err := useCases.User.Find(dto.SearchUserDto{
+		Login: "tvblackman1",
+	})
+	if err != nil {
+		return dto.UserDto{}, err
+	}
+	for _, user := range users {
+		if user.Login == "tvblackman1" {
+			return user, nil
+		}
+	}
 	return useCases.User.Register(dto.UserCreateDto{
 		Login:    "tvblackman1",
 		Password: "120474ba",

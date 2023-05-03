@@ -50,8 +50,12 @@ func (rep *UsersRepository) GetById(id dto.UserId) (dto.UserDto, error) {
 }
 
 func (rep *UsersRepository) GetUsers(params dto.SearchUserDto) ([]dto.UserDto, error) {
-	request := fmt.Sprintf("select id, login, email from %s;",
-		UsersDbName,
+	var userNameLike string
+	if len(params.Login) > 0 {
+		userNameLike = fmt.Sprintf(" where login like '%%%s%%'", params.Login)
+	}
+	request := fmt.Sprintf("select id, login, email from %s%s;",
+		UsersDbName, userNameLike,
 	)
 	var users []UserDb
 	err := rep.db.Select(&users, request)
