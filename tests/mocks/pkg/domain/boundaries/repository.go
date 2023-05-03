@@ -139,11 +139,12 @@ func (mr *MockSourcesRepositoryMockRecorder) CreateSource(sourceDto interface{})
 }
 
 // GetById mocks base method.
-func (m *MockSourcesRepository) GetById(id dto.SourceId) dto.SourceDto {
+func (m *MockSourcesRepository) GetById(id dto.SourceId) (dto.SourceDto, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetById", id)
 	ret0, _ := ret[0].(dto.SourceDto)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.

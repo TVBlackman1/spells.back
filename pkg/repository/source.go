@@ -37,8 +37,17 @@ func (rep *SourcesRepository) CreateSource(sourceDto dto.SourceToRepositoryDto) 
 	return nil
 }
 
-func (rep *SourcesRepository) GetById(id dto.SourceId) dto.SourceDto {
-	return dto.SourceDto{}
+func (rep *SourcesRepository) GetById(id dto.SourceId) (dto.SourceDto, error) {
+	request := fmt.Sprintf("select id, name, description, version_number, is_official, author, uploaded_by from %s where id='%s';\n",
+		SourcesDbName, uuid.UUID(id).String(),
+	)
+	var source SourceDb
+	err := rep.db.Get(&source, request)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Bad request: %s. While getting source by id: %s\n", err.Error(), uuid.UUID(id).String())
+		return dto.SourceDto{}, err
+	}
+	return rep.dbSourceToSourceDto(source), nil
 }
 
 func (rep *SourcesRepository) GetSources(userId dto.UserId, params dto.SearchSourceDto) ([]dto.SourceDto, error) {

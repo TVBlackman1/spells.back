@@ -2548,7 +2548,7 @@
       "ru": {
         "name": "Охранные руны",
         "level": "3",
-        "materials": "",
+        "materials": "Благовония и растолчённый бриллиант, стоящий как минимум 200 зм, расходуемый заклинанием",
         "text": "Вы наносите губительный знак на какую-либо поверхность или внутри объекта. Чтобы его обнаружить требуется успешная проверка Интеллекта (Анализ) против вашего КС заклинаний. Вы можете более точно указать событие, активирующее знак.<br>   Взрывные руны. При срабатывании знак извергает энергию в сфере радиусом 20 футов вокруг себя. Каждое существо в области должно сделать спасбросок по Ловкости. При провале оно поулчает 5d8 урона кислотой, огнем, холодом, электричеством или звуком (на ваш выбор), а при успехе - половину этого урона.<br>   Заклинательный символ. Вы можете сохранить внутри знака заготовленное заклинание 3 круга или ниже, произнеся его во время нанесения знака.<br>   На более высоких кругах. Если используете ячейку 4 круга или выше, то урон увеличивается на 1d8 за каждый круг выше третьего. Если вы создаете заклинательный символ, то можете сохранить в нем заклинание того же круга.",
         "school": "ограждение",
         "castingTime": "1 час",
@@ -3546,7 +3546,7 @@
         "school": "преобразование",
         "castingTime": "1 действие",
         "range": "Касание",
-        "materials": "",
+        "materials": "мягкая глина, которая по форме должна грубо напоминать желаемую форму каменного объекта",
         "components": "В, С, M (мягкая глина, которая по форме должна грубо напоминать желаемую форму каменного объекта)",
         "duration": "мгновенно",
         "source": "PHB"
@@ -4170,7 +4170,7 @@
       "ru": {
         "name": "Силовая стена",
         "level": "5",
-        "materials": "",
+        "materials": "Щепотка порошка толчёного прозрачного драгоценного камня",
         "text": "Невидимая силовая волна появляется в указанной вами точке в пределах дальности заклинания. Стена появляется в любом положении на ваш выбор: вертикально, горизонтально или под углом. Она может находиться в воздухе или на поверхности. Вы можете придать ей форму полусферы с радиусом 10 футов или плоской поверхности, состоящей из десяти панелей 10 х 10 футов. Каждая панель должна соприкасаться с другой. В любой форме толщина стены составляет 1/4 дюйма. Стена существует до тех пор, пока действует заклинание. Если она возникает в том месте, где находится существо, то его сдвигает в любую сторону от стены на ваш выбор.   Никакой физический объект не может пройти сквозь стену. Она имунна к любому урону и не может быть развеяна при помощи заклинания развеять магию. Однако дезинтеграция разрушает стену мгновенно. Стена распространяется и на Эфирный План, блокируя перемещение сквозь стену и в нем.",
         "school": "проявление",
         "castingTime": "1 действие",
@@ -12001,7 +12001,7 @@
         "level": "9",
         "castingTime": "1 action",
         "range": "120 feet",
-        "components": "V",
+        "components": "V, S, M",
         "duration": "Concentration, up to 1 hour",
         "text": "You transform up to ten creatures of your choice thatyou can see within range. An unwilling target must suc—ceed on a Wisdom saving throw to resist the transforma—tion. An unwilling shapechanger automatically succeedson the save.<br>Each target assumes a beast form of your choice, andyou can choose the same form or different ones for eachtarget. The new form can be any beast you have seenwhose challenge rating is equal to or less than the target's(or half the target's level, if the target doesn't have achallenge rating). The target's game statistics, includingmental ability scores, are replaced by the statistics ofthe chosen beast, but the target retains its hit points,alignment, and personality.<br>Each target gains a number of temporary hit pointsequal to the hit points of its new form. These temporaryhit points can't be replaced by temporary hit points fromanother source. A target reverts to its normal form whenit has no more temporary hit points or it dies. If the spellends before then, the creature loses all its temporary hitpoints and reverts to its normal form.<br>The creature is limited in the actions it can perform bythe nature of its new form. It can't speak, cast spells, ordo anything else that requires hands or speech.<br>The target's gear melds into the new form. The targetcan't activate, use, wield, or otherwise benefit from anyof its equipment.",
         "source": "XGTE"
@@ -12014,7 +12014,7 @@
         "castingTime": "1 действие",
         "range": "120 футов",
         "components": "В, С, М",
-        "materials": "(кокон гусеницы)",
+        "materials": "кокон гусеницы",
         "duration": "Концентрация, вплоть до 1 часа"
       }
     },

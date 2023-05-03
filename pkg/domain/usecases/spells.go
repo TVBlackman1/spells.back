@@ -23,6 +23,7 @@ func (usecase *SpellUseCase) CreateSpell(userId dto.UserId, spellDto dto.CreateS
 			return errors.New("not valid user")
 		}
 		if !usecase.checkMaterialComponent(spellDto) {
+			println(spellDto.Name)
 			return errors.New("not valid material component")
 		}
 		if !usecase.isNewNameInSpellSource(spellDto.Name, spellDto.SourceIds) {
@@ -66,7 +67,10 @@ func (usecase *SpellUseCase) checkMaterialComponent(spellDto dto.CreateSpellDto)
 
 func (usecase *SpellUseCase) isUserHavingSpellSource(userId dto.UserId, sourceIds []dto.SourceId) bool {
 	for _, sourceId := range sourceIds {
-		source := usecase.repository.Sources.GetById(sourceId)
+		source, err := usecase.repository.Sources.GetById(sourceId)
+		if err != nil {
+			return false
+		}
 		if source.UploadedBy != userId {
 			return false
 		}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"golang.org/x/exp/slices"
 	"log"
 	"os"
 	"spells.tvblackman1.ru/lib/config"
@@ -42,36 +41,31 @@ func main() {
 		log.Fatal(err)
 	}
 	data := importer.GetSpellsData(file)
-	fmt.Println(len(data.AllSpells))
 	user, err := setUser(useCases)
 	if err != nil {
 		fmt.Println(err)
 	}
-	uploadSourcesToDb(user.Id, useCases, data)
-	aliasSourceToId := getSourceIds(useCases, data.SourceList)
-	for name, id := range aliasSourceToId {
-		fmt.Println(name, id)
-	}
-	//uploadSpellsToDb(user.Id, useCases, data)
+	//uploadSourcesToDb(user.Id, useCases, data)
+	uploadSpellsToDb(user.Id, useCases, data)
 
 }
 
 func uploadSourcesToDb(userId dto.UserId, useCases *usecases.UseCases, data *importer.MainStructure) {
 	for sourceName, source := range data.SourceList {
-		useCases.Source.CreateSource(userId, dto.SourceCreateDto{
+		err := useCases.Source.CreateSource(userId, dto.SourceCreateDto{
 			Name:        sourceName,
 			Description: source.Text.Ru.Title,
 			IsOfficial:  source.Official,
 		})
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 }
 
 func uploadSpellsToDb(userId dto.UserId, useCases *usecases.UseCases, data *importer.MainStructure) {
 	aliasSourceToId := getSourceIds(useCases, data.SourceList)
 	for ind, spell := range data.AllSpells[0:498] {
-		//if spell.En.Name != "Earth Tremor" {
-		//	continue
-		//}
 		ruSpell := spell.Ru
 		spellSourceNames := func() string {
 			if len(spell.Ru.Source) == 0 {
@@ -85,6 +79,12 @@ func uploadSpellsToDb(userId dto.UserId, useCases *usecases.UseCases, data *impo
 			fmt.Printf("not valid spell level: %s of spell %s\n", ruSpell.Level.String(), ruSpell.Name)
 			continue
 		}
+		//if ruSpell.Name != "Святилище" {
+		//	continue
+		//}
+		hasMaterialComponent := hasComponent(spell.En.Components, 'M')
+		isVerbal := hasComponent(spell.En.Components, 'V')
+		isSomatic := hasComponent(spell.En.Components, 'S')
 		sourceIds, err := aliasSourcesToIds(strings.Split(spellSourceNames, ", "), aliasSourceToId)
 		if err != nil {
 			fmt.Printf(err.Error())
@@ -97,9 +97,9 @@ func uploadSpellsToDb(userId dto.UserId, useCases *usecases.UseCases, data *impo
 			Description:          strings.Replace(ruSpell.Text, "'", "", -1),
 			CastingTime:          ruSpell.CastingTime,
 			Duration:             ruSpell.Duration,
-			IsVerbal:             slices.Contains(strings.Split(ruSpell.Components, ", "), "В"),
-			IsSomatic:            slices.Contains(strings.Split(ruSpell.Components, ", "), "С"),
-			HasMaterialComponent: slices.Contains(strings.Split(ruSpell.Components, ", "), "М"),
+			IsVerbal:             isVerbal,
+			IsSomatic:            isSomatic,
+			HasMaterialComponent: hasMaterialComponent,
 			MaterialComponent:    ruSpell.Materials,
 			MagicalSchool:        ruSpell.School,
 			Distance:             ruSpell.Range,
@@ -166,4 +166,8 @@ func aliasSourcesToIds(sources []string, alias map[string]dto.SourceId) ([]dto.S
 
 	}
 	return ret, nil
+}
+
+func hasComponent(components string, component rune) bool {
+	return strings.IndexRune(components, component) != -1
 }

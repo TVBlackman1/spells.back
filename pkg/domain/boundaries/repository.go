@@ -21,7 +21,7 @@ type UsersRepository interface {
 
 type SourcesRepository interface {
 	CreateSource(sourceDto dto.SourceToRepositoryDto) error
-	GetById(id dto.SourceId) dto.SourceDto
+	GetById(id dto.SourceId) (dto.SourceDto, error)
 	GetSources(userId dto.UserId, params dto.SearchSourceDto) ([]dto.SourceDto, error)
 	//AddCustomSourceToUser(userId dto.UserId, dto.SourceId)
 	//CreateCopyWithNextVersion(userId dto.UserId, id dto.SourceId)
