@@ -19,14 +19,14 @@ func NewSpellUseCase(repository *boundaries.Repository) *SpellUseCase {
 func (usecase *SpellUseCase) CreateSpell(userId dto.UserId, spellDto dto.CreateSpellDto) error {
 	verificationOff := os.Getenv("UNSAVED_SPELL_CREATING") == "true"
 	if !verificationOff {
-		if !usecase.isUserHavingSpellSource(userId, spellDto.SourceIds) {
+		if !usecase.isUserHavingSpellSource(userId, spellDto.SourceId) {
 			return errors.New("not valid user")
 		}
 		if !usecase.checkMaterialComponent(spellDto) {
 			println(spellDto.Name)
 			return errors.New("not valid material component")
 		}
-		if !usecase.isNewNameInSpellSource(spellDto.Name, spellDto.SourceIds) {
+		if !usecase.isNewNameInSpellSource(spellDto.Name, spellDto.SourceId) {
 			return errors.New("not unique name of spell in source")
 		}
 	}
@@ -47,7 +47,7 @@ func (usecase *SpellUseCase) CreateSpell(userId dto.UserId, spellDto dto.CreateS
 		MagicalSchool:        spellDto.MagicalSchool,
 		Distance:             spellDto.Distance,
 		IsRitual:             spellDto.IsRitual,
-		SourceIds:            spellDto.SourceIds,
+		SourceId:             spellDto.SourceId,
 	}
 	err := usecase.repository.Spells.CreateSpell(dataToWrite)
 	return err
@@ -65,25 +65,18 @@ func (usecase *SpellUseCase) checkMaterialComponent(spellDto dto.CreateSpellDto)
 	return hasMaterialComponentText == spellDto.HasMaterialComponent
 }
 
-func (usecase *SpellUseCase) isUserHavingSpellSource(userId dto.UserId, sourceIds []dto.SourceId) bool {
-	for _, sourceId := range sourceIds {
-		source, err := usecase.repository.Sources.GetById(sourceId)
-		if err != nil {
-			return false
-		}
-		if source.UploadedBy != userId {
-			return false
-		}
+func (usecase *SpellUseCase) isUserHavingSpellSource(userId dto.UserId, sourceId dto.SourceId) bool {
+	source, err := usecase.repository.Sources.GetById(sourceId)
+	if err != nil {
+		return false
 	}
-	return true
+	return source.UploadedBy == userId
 }
 
-func (usecase *SpellUseCase) isNewNameInSpellSource(spellName string, sourceIds []dto.SourceId) bool {
-	// TODO examination: if already created - expand list of sources in spell dto
-	// now just check first source id
+func (usecase *SpellUseCase) isNewNameInSpellSource(spellName string, sourceId dto.SourceId) bool {
 	spells := usecase.repository.Spells.GetSpells(dto.SearchSpellDto{
 		Name:    spellName,
-		Sources: sourceIds[:1],
+		Sources: []dto.SourceId{sourceId},
 	})
 	for _, spell := range spells {
 		if spell.Name == spellName {

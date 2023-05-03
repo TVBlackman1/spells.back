@@ -45,7 +45,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	//uploadSourcesToDb(user.Id, useCases, data)
+	uploadSourcesToDb(user.Id, useCases, data)
 	uploadSpellsToDb(user.Id, useCases, data)
 
 }
@@ -87,27 +87,29 @@ func uploadSpellsToDb(userId dto.UserId, useCases *usecases.UseCases, data *impo
 		isSomatic := hasComponent(spell.En.Components, 'S')
 		sourceIds, err := aliasSourcesToIds(strings.Split(spellSourceNames, ", "), aliasSourceToId)
 		if err != nil {
-			fmt.Printf(err.Error())
+			fmt.Printf(err.Error(), "\n")
 			continue
 		}
-		err = useCases.Spell.CreateSpell(userId, dto.CreateSpellDto{
-			Name:                 ruSpell.Name,
-			Level:                int(spellLevel),
-			Classes:              []string{},
-			Description:          strings.Replace(ruSpell.Text, "'", "", -1),
-			CastingTime:          ruSpell.CastingTime,
-			Duration:             ruSpell.Duration,
-			IsVerbal:             isVerbal,
-			IsSomatic:            isSomatic,
-			HasMaterialComponent: hasMaterialComponent,
-			MaterialComponent:    ruSpell.Materials,
-			MagicalSchool:        ruSpell.School,
-			Distance:             ruSpell.Range,
-			IsRitual:             len(ruSpell.Ritual) > 0,
-			SourceIds:            sourceIds,
-		})
-		if err != nil {
-			log.Fatal(err)
+		for _, sourceId := range sourceIds {
+			err = useCases.Spell.CreateSpell(userId, dto.CreateSpellDto{
+				Name:                 ruSpell.Name,
+				Level:                int(spellLevel),
+				Classes:              []string{},
+				Description:          strings.Replace(ruSpell.Text, "'", "", -1),
+				CastingTime:          ruSpell.CastingTime,
+				Duration:             ruSpell.Duration,
+				IsVerbal:             isVerbal,
+				IsSomatic:            isSomatic,
+				HasMaterialComponent: hasMaterialComponent,
+				MaterialComponent:    ruSpell.Materials,
+				MagicalSchool:        ruSpell.School,
+				Distance:             ruSpell.Range,
+				IsRitual:             len(ruSpell.Ritual) > 0,
+				SourceId:             sourceId,
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 		if ind%20 == 0 {
 			fmt.Printf("%d/%d\n", ind, len(data.AllSpells))

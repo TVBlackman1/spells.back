@@ -14,7 +14,7 @@ CREATE TABLE spells(
     magical_school VARCHAR(40),
     distance VARCHAR(40),
     is_ritual BOOLEAN DEFAULT false,
-    source_ids UUID[] DEFAULT '{}',
+    source_id UUID NOT NULL,
     created timestamp DEFAULT CURRENT_TIMESTAMP,
     edited timestamp DEFAULT CURRENT_TIMESTAMP
 );
