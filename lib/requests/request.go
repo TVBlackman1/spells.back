@@ -122,7 +122,7 @@ func (req *Request) String() string {
 	}
 	if req.orderBy.Len() > 0 {
 		req.request.WriteString(" order by ")
-		req.request.WriteString(req.conditions.String())
+		req.request.WriteString(req.orderBy.String())
 	}
 	if req.offset > 0 {
 		req.request.WriteString(fmt.Sprintf(" offset %d ", req.offset))

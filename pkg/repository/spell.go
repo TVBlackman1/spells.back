@@ -95,6 +95,7 @@ func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pag
 		schoolsToRequest := getSchoolsEnumeration(params.MagicalSchools)
 		request.Where(fmt.Sprintf("spells.magical_school in (%s)", schoolsToRequest))
 	}
+	request.OrderBy("spells.name")
 	request.Limit(limit).Offset(offset)
 	var spells []SpellDb
 	fmt.Println(request.String())
