@@ -55,6 +55,9 @@ func (rep *SpellsRepository) CreateSpell(spellDto dto.SpellToRepositoryDto) erro
 }
 
 func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pagination.Pagination) ([]dto.SpellDto, error) {
+	if pagination.PageNumber < 1 {
+		pagination.PageNumber = 1
+	}
 	limit := pagination.Limit
 	offset := pagination.Limit * (pagination.PageNumber - 1)
 

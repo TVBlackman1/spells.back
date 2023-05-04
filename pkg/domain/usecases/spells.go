@@ -75,16 +75,19 @@ func (usecase *SpellUseCase) isUserHavingSpellSource(userId dto.UserId, sourceId
 }
 
 func (usecase *SpellUseCase) isNewNameInSpellSource(spellName string, sourceId dto.SourceId) bool {
-	//spells, err := usecase.repository.Spells.GetSpells(dto.SearchSpellDto{
-	//	Name:    spellName,
-	//	Sources: []dto.SourceId{sourceId},
-	//})
-	// TODO add name like and name strict checks to search dto
-
-	//for _, spell := range spells {
-	//	if spell.Name == spellName {
-	//		return false
-	//	}
-	//}
+	spells, err := usecase.repository.Spells.GetSpells(dto.SearchSpellDto{
+		EqualsName: spellName,
+		Sources:    []dto.SourceId{sourceId},
+	}, pagination.Pagination{
+		Limit: 1,
+	})
+	if err != nil {
+		return false
+	}
+	for _, spell := range spells {
+		if spell.Name == spellName {
+			return false
+		}
+	}
 	return true
 }
