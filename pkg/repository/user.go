@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"os"
+	"spells.tvblackman1.ru/lib/requests"
 	"spells.tvblackman1.ru/pkg/domain/dto"
 )
 
@@ -50,15 +51,17 @@ func (rep *UsersRepository) GetById(id dto.UserId) (dto.UserDto, error) {
 }
 
 func (rep *UsersRepository) GetUsers(params dto.SearchUserDto) ([]dto.UserDto, error) {
-	var userNameLike string
-	if len(params.Login) > 0 {
-		userNameLike = fmt.Sprintf(" where login like '%%%s%%'", params.Login)
+	request := requests.NewRequest(UsersDbName)
+	request.Select("id, login, email")
+	if uuid.UUID(params.Id) != uuid.Nil {
+		request.Where(fmt.Sprintf("id='%s'", uuid.UUID(params.Id).String()))
+	} else if len(params.EqualsLogin) > 0 {
+		request.Where(fmt.Sprintf("login='%s'", params.LikeLogin))
+	} else if len(params.LikeLogin) > 0 {
+		request.Where(fmt.Sprintf("login like '%%%s%%'", params.LikeLogin))
 	}
-	request := fmt.Sprintf("select id, login, email from %s%s;",
-		UsersDbName, userNameLike,
-	)
 	var users []UserDb
-	err := rep.db.Select(&users, request)
+	err := rep.db.Select(&users, request.String())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Bad requests: %s\n", err.Error())
 		return []dto.UserDto{}, err

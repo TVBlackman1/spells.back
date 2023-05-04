@@ -51,13 +51,12 @@ func (useCase *UserUseCase) validatePasswordWithRules(password string) bool {
 }
 
 func (useCase *UserUseCase) validateLoginWithRules(login string) bool {
-	return useCase.isLoginSimilarWithAdmin(login) ||
-		useCase.isLoginSimilarWithAdmin(login)
+	return useCase.isLoginUnique(login) && newLoginChecker(login).basicCheck()
 }
 
 func (useCase *UserUseCase) isLoginUnique(login string) bool {
 	found, _ := useCase.Find(dto.SearchUserDto{
-		Login: login,
+		EqualsLogin: login,
 	})
 	for _, foundUser := range found {
 		if foundUser.Login == login {
@@ -73,4 +72,27 @@ func (useCase *UserUseCase) isLoginSimilarWithAdmin(login string) bool {
 	isEmpty := len(login) == 0
 	isAdminLike := strings.Contains(login, ADMIN_LIKE_LOGIN) && login != ADMIN_LOGIN
 	return !isEmpty && !isAdminLike
+}
+
+type loginChecker struct {
+	login string
+}
+
+func newLoginChecker(login string) *loginChecker {
+	return &loginChecker{login}
+}
+
+func (checker *loginChecker) basicCheck() bool {
+	return !checker.isSimilarWithAdmin() && !checker.isEmpty()
+}
+
+func (checker *loginChecker) isSimilarWithAdmin() bool {
+	ADMIN_LIKE_LOGIN := "tvblackman"
+	ADMIN_LOGIN := "tvblackman1"
+	isAdminLike := strings.Contains(checker.login, ADMIN_LIKE_LOGIN) && checker.login != ADMIN_LOGIN
+	return isAdminLike
+}
+
+func (checker *loginChecker) isEmpty() bool {
+	return len(checker.login) == 0
 }

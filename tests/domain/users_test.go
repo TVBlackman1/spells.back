@@ -16,12 +16,13 @@ func TestUserUseCase_Register(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mockUsers := mock_boundaries.NewMockUsersRepository(ctrl)
+			mockUsers.EXPECT().GetUsers(gomock.Any()).AnyTimes()
 			mockUsers.EXPECT().CreateUser(gomock.Any()).AnyTimes()
 			repository := &boundaries.Repository{
 				Users: mockUsers,
 			}
 			useCase := usecases.NewUserUseCase(repository)
-			if err := useCase.Register(tt.args.innerDto); (err != nil) != tt.wantErr {
+			if _, err := useCase.Register(tt.args.innerDto); (err != nil) != tt.wantErr {
 				t.Errorf("Register() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

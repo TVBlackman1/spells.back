@@ -23,6 +23,7 @@ type UserToRepositoryDto struct {
 }
 
 type SearchUserDto struct {
-	Id    UserId
-	Login string
+	Id          UserId
+	EqualsLogin string
+	LikeLogin   string
 }

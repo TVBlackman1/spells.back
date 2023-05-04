@@ -126,7 +126,7 @@ func registerDefaultUser(useCases *usecases.UseCases) (dto.UserDto, error) {
 
 func setUser(useCases *usecases.UseCases) (dto.UserDto, error) {
 	users, err := useCases.User.Find(dto.SearchUserDto{
-		Login: "tvblackman1",
+		EqualsLogin: "tvblackman1",
 	})
 	if err != nil {
 		return dto.UserDto{}, err
