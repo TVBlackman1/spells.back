@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	pagination "spells.tvblackman1.ru/lib/pagination"
 	dto "spells.tvblackman1.ru/pkg/domain/dto"
 )
 
@@ -335,15 +336,16 @@ func (mr *MockSpellsRepositoryMockRecorder) GetById(id interface{}) *gomock.Call
 }
 
 // GetSpells mocks base method.
-func (m *MockSpellsRepository) GetSpells(params dto.SearchSpellDto) []dto.SpellDto {
+func (m *MockSpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pagination.Pagination) ([]dto.SpellDto, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSpells", params)
+	ret := m.ctrl.Call(m, "GetSpells", params, pagination)
 	ret0, _ := ret[0].([]dto.SpellDto)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetSpells indicates an expected call of GetSpells.
-func (mr *MockSpellsRepositoryMockRecorder) GetSpells(params interface{}) *gomock.Call {
+func (mr *MockSpellsRepositoryMockRecorder) GetSpells(params, pagination interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpells", reflect.TypeOf((*MockSpellsRepository)(nil).GetSpells), params)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpells", reflect.TypeOf((*MockSpellsRepository)(nil).GetSpells), params, pagination)
 }

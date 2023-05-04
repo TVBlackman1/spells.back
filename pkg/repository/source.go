@@ -44,7 +44,7 @@ func (rep *SourcesRepository) GetById(id dto.SourceId) (dto.SourceDto, error) {
 	var source SourceDb
 	err := rep.db.Get(&source, request)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Bad request: %s. While getting source by id: %s\n", err.Error(), uuid.UUID(id).String())
+		fmt.Fprintf(os.Stderr, "Bad requests: %s. While getting source by id: %s\n", err.Error(), uuid.UUID(id).String())
 		return dto.SourceDto{}, err
 	}
 	return rep.dbSourceToSourceDto(source), nil
@@ -57,7 +57,7 @@ func (rep *SourcesRepository) GetSources(userId dto.UserId, params dto.SearchSou
 	var sources []SourceDb
 	err := rep.db.Select(&sources, request)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Bad request: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "Bad requests: %s\n", err.Error())
 		return []dto.SourceDto{}, err
 	}
 	ret := make([]dto.SourceDto, len(sources))

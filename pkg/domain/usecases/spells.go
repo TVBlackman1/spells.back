@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"os"
+	"spells.tvblackman1.ru/lib/pagination"
 	"spells.tvblackman1.ru/pkg/domain/boundaries"
 	"spells.tvblackman1.ru/pkg/domain/dto"
 )
@@ -53,11 +54,11 @@ func (usecase *SpellUseCase) CreateSpell(userId dto.UserId, spellDto dto.CreateS
 	return err
 }
 
-func (usecase *SpellUseCase) GetSpellList(userId dto.UserId, searchDto dto.SearchSpellDto) ([]dto.SpellDto, error) {
+func (usecase *SpellUseCase) GetSpellList(userId dto.UserId, searchDto dto.SearchSpellDto, pagination pagination.Pagination) ([]dto.SpellDto, error) {
 	if len(searchDto.Sources) == 0 {
 		// TODO default sources + user custom sources (extern libs or written by this user)
 	}
-	return usecase.repository.Spells.GetSpells(searchDto), nil
+	return usecase.repository.Spells.GetSpells(searchDto, pagination)
 }
 
 func (usecase *SpellUseCase) checkMaterialComponent(spellDto dto.CreateSpellDto) bool {
@@ -74,14 +75,16 @@ func (usecase *SpellUseCase) isUserHavingSpellSource(userId dto.UserId, sourceId
 }
 
 func (usecase *SpellUseCase) isNewNameInSpellSource(spellName string, sourceId dto.SourceId) bool {
-	spells := usecase.repository.Spells.GetSpells(dto.SearchSpellDto{
-		Name:    spellName,
-		Sources: []dto.SourceId{sourceId},
-	})
-	for _, spell := range spells {
-		if spell.Name == spellName {
-			return false
-		}
-	}
+	//spells, err := usecase.repository.Spells.GetSpells(dto.SearchSpellDto{
+	//	Name:    spellName,
+	//	Sources: []dto.SourceId{sourceId},
+	//})
+	// TODO add name like and name strict checks to search dto
+
+	//for _, spell := range spells {
+	//	if spell.Name == spellName {
+	//		return false
+	//	}
+	//}
 	return true
 }

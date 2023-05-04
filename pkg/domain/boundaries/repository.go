@@ -1,6 +1,9 @@
 package boundaries
 
-import "spells.tvblackman1.ru/pkg/domain/dto"
+import (
+	"spells.tvblackman1.ru/lib/pagination"
+	"spells.tvblackman1.ru/pkg/domain/dto"
+)
 
 type Repository struct {
 	Tags    TagsRepository
@@ -41,6 +44,6 @@ type SetsRepository interface {
 type SpellsRepository interface {
 	CreateSpell(spellDto dto.SpellToRepositoryDto) error
 	GetById(id dto.SpellId) dto.SpellDto
-	GetSpells(params dto.SearchSpellDto) []dto.SpellDto
+	GetSpells(params dto.SearchSpellDto, pagination pagination.Pagination) ([]dto.SpellDto, error)
 	//UpdateSpell(userId dto.UserId, spellDto dto.CreateSpellDto)
 }

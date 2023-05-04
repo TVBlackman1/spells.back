@@ -1,12 +1,5 @@
 package main
 
-import (
-	"spells.tvblackman1.ru/pkg/domain/boundaries"
-	"spells.tvblackman1.ru/pkg/domain/dto"
-	"spells.tvblackman1.ru/pkg/domain/usecases"
-	"spells.tvblackman1.ru/pkg/repository"
-)
-
 func main() {
 	//var pass = "qemu"
 	//encryptedPass, err := hash.HashPassword(pass)
@@ -22,11 +15,11 @@ func main() {
 	//	})
 	//})
 	//r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-	repository := &boundaries.Repository{
-		Users: repository.NewUserRepository(),
-	}
-	userUsecase := usecases.NewUserUseCase(repository)
-	userUsecase.Register(dto.UserCreateDto{
-		Login: "tvblackman1", Password: "12345",
-	})
+	//repository := &boundaries.Repository{
+	//	Users: repository.NewUserRepository(),
+	//}
+	//userUsecase := usecases.NewUserUseCase(repository)
+	//userUsecase.Register(dto.UserCreateDto{
+	//	Login: "tvblackman1", Password: "12345",
+	//})
 }

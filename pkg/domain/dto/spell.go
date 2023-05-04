@@ -1,6 +1,9 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"spells.tvblackman1.ru/lib/tribool"
+)
 
 type SpellId uuid.UUID
 type SetSpellId uuid.UUID
@@ -12,7 +15,7 @@ type SpellDto struct {
 	Classes              []string
 	Version              int
 	Description          string
-	Action               string
+	CastingTime          string
 	Duration             string
 	IsVerbal             bool
 	IsSomatic            bool
@@ -22,6 +25,7 @@ type SpellDto struct {
 	Distance             string
 	IsRitual             bool
 	SourceId             SourceId
+	SourceName           string
 }
 
 type SetSpellDto struct {
@@ -81,10 +85,11 @@ type SpellToRepositoryDto struct {
 
 type SearchSpellDto struct {
 	Name                 string
-	IsRitual             bool
-	IsVerbal             bool
-	IsSomatic            bool
-	HasMaterialComponent bool
+	IsRitual             tribool.Tribool
+	IsVerbal             tribool.Tribool
+	IsSomatic            tribool.Tribool
+	HasMaterialComponent tribool.Tribool
+	WasteMaterial        tribool.Tribool
 	MagicalSchools       []string
 	Levels               []int
 	Classes              []string

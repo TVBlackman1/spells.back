@@ -43,7 +43,7 @@ func (rep *UsersRepository) GetById(id dto.UserId) (dto.UserDto, error) {
 	var user UserDb
 	err := rep.db.Get(&user, request)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Bad request: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "Bad requests: %s\n", err.Error())
 		return dto.UserDto{}, err
 	}
 	return rep.dbUserToUserDto(user), nil
@@ -60,7 +60,7 @@ func (rep *UsersRepository) GetUsers(params dto.SearchUserDto) ([]dto.UserDto, e
 	var users []UserDb
 	err := rep.db.Select(&users, request)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Bad request: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "Bad requests: %s\n", err.Error())
 		return []dto.UserDto{}, err
 	}
 	ret := make([]dto.UserDto, len(users))

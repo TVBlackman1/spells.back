@@ -65,7 +65,7 @@ func uploadSourcesToDb(userId dto.UserId, useCases *usecases.UseCases, data *imp
 
 func uploadSpellsToDb(userId dto.UserId, useCases *usecases.UseCases, data *importer.MainStructure) {
 	aliasSourceToId := getSourceIds(useCases, data.SourceList)
-	for ind, spell := range data.AllSpells[0:498] {
+	for ind, spell := range data.AllSpells {
 		ruSpell := spell.Ru
 		spellSourceNames := func() string {
 			if len(spell.Ru.Source) == 0 {
