@@ -33,9 +33,9 @@ func NewRequest(tableName string) *Request {
 
 func (req *Request) Where(condition string) *Request {
 	req.addPreCondition()
-	req.request.WriteRune('(')
-	req.request.WriteString(condition)
-	req.request.WriteRune(')')
+	req.conditions.WriteRune('(')
+	req.conditions.WriteString(condition)
+	req.conditions.WriteRune(')')
 	return req
 }
 
@@ -88,7 +88,7 @@ func (req *Request) addPreCondition() {
 	if !req.alreadyAddedCondition {
 		req.alreadyAddedCondition = true
 	} else {
-		req.request.WriteString(" and")
+		req.conditions.WriteString(" and ")
 	}
 }
 

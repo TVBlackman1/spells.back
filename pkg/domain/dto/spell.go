@@ -84,14 +84,15 @@ type SpellToRepositoryDto struct {
 }
 
 type SearchSpellDto struct {
-	Name                 string
+	LikeName             string
+	EqualsName           string
 	IsRitual             tribool.Tribool
 	IsVerbal             tribool.Tribool
 	IsSomatic            tribool.Tribool
 	HasMaterialComponent tribool.Tribool
-	WasteMaterial        tribool.Tribool
+	WasteMaterial        tribool.Tribool // TODO
 	MagicalSchools       []string
 	Levels               []int
-	Classes              []string
+	Classes              []string // TODO
 	Sources              []SourceId
 }

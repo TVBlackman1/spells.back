@@ -8,7 +8,9 @@ import (
 	"os"
 	"spells.tvblackman1.ru/lib/pagination"
 	"spells.tvblackman1.ru/lib/requests"
+	"spells.tvblackman1.ru/lib/tribool"
 	"spells.tvblackman1.ru/pkg/domain/dto"
+	"strconv"
 	"strings"
 )
 
@@ -66,13 +68,39 @@ func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pag
 	request.Select("sources.name as \"sources.name\"")
 	if len(params.Sources) > 0 {
 		sourcesToRequest := getSourcesEnumeration(params.Sources)
-		request.Where(fmt.Sprintf("sources.name in (%s)", sourcesToRequest))
+		request.Where(fmt.Sprintf("sources.id in (%s)", sourcesToRequest))
+	}
+	if len(params.EqualsName) > 0 {
+		request.Where(fmt.Sprintf("spells.name='%s'", params.EqualsName))
+	} else if len(params.LikeName) > 0 {
+		request.Where(fmt.Sprintf("spells.name ilike '%%%s%%'", params.LikeName))
+	}
+	if params.IsVerbal != tribool.Unset {
+		request.Where(fmt.Sprintf("spells.is_verbal=%t", params.IsVerbal == tribool.True))
+	}
+	if params.IsSomatic != tribool.Unset {
+		request.Where(fmt.Sprintf("spells.is_somatic=%t", params.IsSomatic == tribool.True))
+	}
+	if params.HasMaterialComponent != tribool.Unset {
+		request.Where(fmt.Sprintf("spells.is_material=%t", params.HasMaterialComponent == tribool.True))
+	}
+	if params.IsRitual != tribool.Unset {
+		request.Where(fmt.Sprintf("spells.is_ritual=%t", params.IsRitual == tribool.True))
+	}
+	if len(params.Levels) > 0 {
+		levelsToRequest := getLevelsEnumeration(params.Levels)
+		request.Where(fmt.Sprintf("spells.level in (%s)", levelsToRequest))
+	}
+	if len(params.MagicalSchools) > 0 {
+		schoolsToRequest := getSchoolsEnumeration(params.MagicalSchools)
+		request.Where(fmt.Sprintf("spells.magical_school in (%s)", schoolsToRequest))
 	}
 	request.Limit(limit).Offset(offset)
 	var spells []SpellDb
+	fmt.Println(request.String())
 	err := rep.db.Select(&spells, request.String())
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Bad requests: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "Bad request: %s\n", err.Error())
 		return []dto.SpellDto{}, err
 	}
 	ret := make([]dto.SpellDto, len(spells))
@@ -120,6 +148,32 @@ func getSourcesEnumeration(ids []dto.SourceId) string {
 		}
 	}
 	return sources.String()
+}
+
+func getLevelsEnumeration(levels []int) string {
+	levelsStr := strings.Builder{}
+	for index, level := range levels {
+		levelsStr.WriteRune('\'')
+		levelsStr.WriteString(strconv.Itoa(level))
+		levelsStr.WriteRune('\'')
+		if index+1 < len(levels) {
+			levelsStr.WriteRune(',')
+		}
+	}
+	return levelsStr.String()
+}
+
+func getSchoolsEnumeration(schools []string) string {
+	schoolsStr := strings.Builder{}
+	for index, school := range schools {
+		schoolsStr.WriteRune('\'')
+		schoolsStr.WriteString(school)
+		schoolsStr.WriteRune('\'')
+		if index+1 < len(schools) {
+			schoolsStr.WriteRune(',')
+		}
+	}
+	return schoolsStr.String()
 }
 
 type SpellDb struct {

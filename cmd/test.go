@@ -34,14 +34,17 @@ func main() {
 		log.Fatalf("repo err: %s", err.Error())
 	}
 	useCases := usecases.NewUseCases(repo)
-	spells, err := useCases.Spell.GetSpellList(dto.UserId{}, dto.SearchSpellDto{}, pagination.Pagination{
+	//sourceId, _ := uuid.FromString("21ce153f-ca9f-4f69-b125-86a03468f8fa")
+	spells, err := useCases.Spell.GetSpellList(dto.UserId{}, dto.SearchSpellDto{
+		MagicalSchools: []string{"иллюзия", "преобразование"},
+	}, pagination.Pagination{
 		Limit:      10,
-		PageNumber: 20,
+		PageNumber: 1,
 	})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	for _, spell := range spells {
-		fmt.Println(spell.Name)
+		fmt.Println(spell.Name, spell.SourceName)
 	}
 }

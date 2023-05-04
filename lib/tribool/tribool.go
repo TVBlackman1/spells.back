@@ -4,6 +4,6 @@ type Tribool int
 
 const (
 	Unset Tribool = iota
-	With
-	Without
+	True
+	False
 )
