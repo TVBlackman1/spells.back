@@ -11,7 +11,7 @@ type Request struct {
 	selects               strings.Builder
 	leftJoins             strings.Builder
 	request               strings.Builder
-	alreadyAddedCondition bool
+	alreadyAddedCondition bool // TODO refactor: remove property
 	limit                 int
 	offset                int
 	orderBy               strings.Builder
@@ -69,6 +69,7 @@ func (req *Request) Offset(offset int) *Request {
 	return req
 }
 
+// TODO add tests for library for examples: snippets of code
 // OrderBy("table.field")
 // OrderBy("table.field desc)
 // OrderBy("table.field desc, table.field2)
@@ -92,6 +93,7 @@ func (req *Request) addPreCondition() {
 	}
 }
 
+// TODO refactor method: use :=
 func (req *Request) Clone() *Request {
 	return &Request{
 		tableName:             req.tableName,

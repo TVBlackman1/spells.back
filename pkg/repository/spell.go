@@ -141,6 +141,7 @@ func (rep *SpellsRepository) dbSpellToSpellDto(spellDb SpellDb) dto.SpellDto {
 	return res
 }
 
+// TODO refactor next methods
 func getSourcesEnumeration(ids []dto.SourceId) string {
 	sources := strings.Builder{}
 	for index, source := range ids {
