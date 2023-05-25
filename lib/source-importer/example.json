@@ -1,0 +1,53 @@
+{
+  "name": "example",
+  "description": "empty description",
+  "isOfficial": true,
+  "author": "author_name",
+  "dependencies": [
+    "author_1/source_name",
+    "author_2/source_name_2",
+    "author_3/source_name_3"
+  ],
+  "races": [
+    "race_1"
+  ],
+  "classes": [
+    "class_name",
+    "class_name_2"
+  ],
+  "archetypes": [
+    {
+      "name": "archetype_1",
+      "class": "class_name",
+      "source": "this"
+    },
+    {
+      "name": "archetype_1",
+      "class": "class_name_other",
+      "source": "source_name",
+      "relations": {
+        "alwaysPreparedSpells": [
+          {
+            "name": "spell_name",
+            "source": "source_name or this",
+            "condition": "minlvl 1; etc",
+            "feature": "1 at day"
+          }
+        ],
+        "expendedSpellList": [
+          {
+            "name": "spell_name",
+            "source": "source_name or this",
+            "condition": "minlvl 1",
+            "feature": "1 at day"
+          }
+        ]
+      }
+    }
+  ],
+  "spells": [
+    {
+      "name": "spell_name"
+    }
+  ]
+}
