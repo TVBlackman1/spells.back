@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -20,12 +19,6 @@ func NewUserRepository(db *sqlx.DB) *UsersRepository {
 }
 
 func (rep *UsersRepository) CreateUser(createDto dto.UserToRepositoryDto) error {
-	users, _ := rep.GetUsers(dto.SearchUserDto{
-		EqualsLogin: createDto.Login,
-	})
-	if len(users) > 0 {
-		return errors.New("user already exists")
-	}
 	request := fmt.Sprintf("INSERT INTO %s(id, login, "+
 		"hash_password) VALUES ('%s', '%s', '%s') RETURNING id;\n",
 		UsersDbName,
