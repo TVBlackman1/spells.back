@@ -131,7 +131,9 @@ func setUser(useCases *usecases.UseCases) (dto.UserDto, error) {
 	if err != nil {
 		return dto.UserDto{}, err
 	}
+	fmt.Println(len(users))
 	for _, user := range users {
+		fmt.Println(user)
 		if user.Login == "tvblackman1" {
 			return user, nil
 		}

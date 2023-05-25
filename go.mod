@@ -3,14 +3,12 @@ module spells.tvblackman1.ru
 go 1.19
 
 require (
-	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/spf13/viper v1.15.0
 	golang.org/x/crypto v0.8.0
-	golang.org/x/exp v0.0.0-20230420155640-133eef4313cb
 )
 
 require (

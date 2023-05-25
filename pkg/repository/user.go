@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -18,13 +19,19 @@ func NewUserRepository(db *sqlx.DB) *UsersRepository {
 	return &UsersRepository{db}
 }
 
-func (rep *UsersRepository) CreateUser(dto dto.UserToRepositoryDto) error {
+func (rep *UsersRepository) CreateUser(createDto dto.UserToRepositoryDto) error {
+	users, _ := rep.GetUsers(dto.SearchUserDto{
+		EqualsLogin: createDto.Login,
+	})
+	if len(users) > 0 {
+		return errors.New("user already exists")
+	}
 	request := fmt.Sprintf("INSERT INTO %s(id, login, "+
 		"hash_password) VALUES ('%s', '%s', '%s') RETURNING id;\n",
 		UsersDbName,
-		uuid.UUID(dto.Id).String(),
-		dto.Login,
-		dto.HashedPassword,
+		uuid.UUID(createDto.Id).String(),
+		createDto.Login,
+		createDto.HashedPassword,
 	)
 	var uuidStr string
 	err := rep.db.Get(&uuidStr, request)
@@ -56,11 +63,12 @@ func (rep *UsersRepository) GetUsers(params dto.SearchUserDto) ([]dto.UserDto, e
 	if uuid.UUID(params.Id) != uuid.Nil {
 		request.Where(fmt.Sprintf("id='%s'", uuid.UUID(params.Id).String()))
 	} else if len(params.EqualsLogin) > 0 {
-		request.Where(fmt.Sprintf("login='%s'", params.LikeLogin))
+		request.Where(fmt.Sprintf("login='%s'", params.EqualsLogin))
 	} else if len(params.LikeLogin) > 0 {
 		request.Where(fmt.Sprintf("login like '%%%s%%'", params.LikeLogin))
 	}
 	var users []UserDb
+	fmt.Println(request.String())
 	err := rep.db.Select(&users, request.String())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Bad requests: %s\n", err.Error())

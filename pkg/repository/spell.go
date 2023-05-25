@@ -101,7 +101,6 @@ func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pag
 	request.OrderBy("spells.name")
 	request.Limit(limit).Offset(offset)
 	var spells []SpellDb
-	fmt.Println(request.String())
 	err := rep.db.Select(&spells, request.String())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Bad request: %s\n", err.Error())
