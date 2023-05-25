@@ -2,7 +2,7 @@ CREATE TABLE sources_to_archetypes(
     id UUID NOT NULL PRIMARY KEY,
     source UUID NOT NULL,
     name varchar(30) NOT NULL,
-    base_class_id UUID NOT NULL -- link to sources_to_classes.id
+    base_class_id UUID NOT NULL, -- link to sources_to_classes.id
     created timestamp DEFAULT CURRENT_TIMESTAMP,
     edited timestamp DEFAULT CURRENT_TIMESTAMP
 );
