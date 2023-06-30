@@ -3,6 +3,7 @@ module spells.tvblackman1.ru
 go 1.19
 
 require (
+	github.com/doug-martin/goqu/v9 v9.18.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.18.1

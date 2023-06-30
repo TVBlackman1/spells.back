@@ -3,10 +3,11 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/postgres"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"os"
-	"spells.tvblackman1.ru/lib/requests"
 	"spells.tvblackman1.ru/pkg/domain/dto"
 )
 
@@ -19,17 +20,19 @@ func NewUserRepository(db *sqlx.DB) *UsersRepository {
 }
 
 func (rep *UsersRepository) CreateUser(createDto dto.UserToRepositoryDto) error {
-	request := fmt.Sprintf("INSERT INTO %s(id, login, "+
-		"hash_password) VALUES ('%s', '%s', '%s') RETURNING id;\n",
-		UsersDbName,
-		uuid.UUID(createDto.Id).String(),
-		createDto.Login,
-		createDto.HashedPassword,
-	)
+	dialect := goqu.Dialect("postgres")
+	request := dialect.Insert(UsersDbName).
+		Rows(goqu.Record{
+			"id":            uuid.UUID(createDto.Id).String(),
+			"login":         createDto.Login,
+			"hash_password": createDto.HashedPassword,
+		}).
+		Returning("id")
+	sql, _, _ := request.ToSQL()
 	var uuidStr string
-	err := rep.db.Get(&uuidStr, request)
+	err := rep.db.Get(&uuidStr, sql)
 	if err != nil {
-		fmt.Println(request)
+		fmt.Println(sql)
 		fmt.Println(err)
 		return err
 	}
@@ -37,12 +40,16 @@ func (rep *UsersRepository) CreateUser(createDto dto.UserToRepositoryDto) error 
 }
 
 func (rep *UsersRepository) GetById(id dto.UserId) (dto.UserDto, error) {
-	request := fmt.Sprintf("select id, login, email from %s where id='%s' limit 1;",
-		UsersDbName,
-		uuid.UUID(id).String(),
-	)
+	idStringifier := uuid.UUID(id).String()
+	dialect := goqu.Dialect("postgres")
+	request := dialect.
+		Select("id", "login", "email").
+		From(UsersDbName).
+		Where(goqu.C("id").Eq(idStringifier)).
+		Limit(1)
+	sql, _, _ := request.ToSQL()
 	var user UserDb
-	err := rep.db.Get(&user, request)
+	err := rep.db.Get(&user, sql)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Bad requests: %s\n", err.Error())
 		return dto.UserDto{}, err
@@ -51,18 +58,20 @@ func (rep *UsersRepository) GetById(id dto.UserId) (dto.UserDto, error) {
 }
 
 func (rep *UsersRepository) GetUsers(params dto.SearchUserDto) ([]dto.UserDto, error) {
-	request := requests.NewRequest(UsersDbName)
-	request.Select("id, login, email")
+	dialect := goqu.Dialect("postgres")
+	request := dialect.Select("id", "login", "email").
+		From(UsersDbName)
 	if uuid.UUID(params.Id) != uuid.Nil {
-		request.Where(fmt.Sprintf("id='%s'", uuid.UUID(params.Id).String()))
+		idStringifier := uuid.UUID(params.Id).String()
+		request.Where(goqu.C("id").Eq(idStringifier))
 	} else if len(params.EqualsLogin) > 0 {
-		request.Where(fmt.Sprintf("login='%s'", params.EqualsLogin))
+		request.Where(goqu.C("login").Eq(params.EqualsLogin))
 	} else if len(params.LikeLogin) > 0 {
-		request.Where(fmt.Sprintf("login like '%%%s%%'", params.LikeLogin))
+		request.Where(goqu.C("login").ILike(params.LikeLogin))
 	}
 	var users []UserDb
-	fmt.Println(request.String())
-	err := rep.db.Select(&users, request.String())
+	sql, _, _ := request.ToSQL()
+	err := rep.db.Select(&users, sql)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Bad requests: %s\n", err.Error())
 		return []dto.UserDto{}, err
