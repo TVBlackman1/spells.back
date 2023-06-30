@@ -10,7 +10,7 @@ CREATE TABLE spells(
     is_verbal BOOLEAN DEFAULT false,
     is_somatic BOOLEAN DEFAULT false,
     is_material BOOLEAN DEFAULT false,
-    material_content VARCHAR(255) NOT NULL DEFAULT '',
+    material_content text NOT NULL DEFAULT '',
     magical_school VARCHAR(40),
     distance VARCHAR(40),
     is_ritual BOOLEAN DEFAULT false,

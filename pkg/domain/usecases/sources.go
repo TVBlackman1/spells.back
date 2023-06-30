@@ -18,7 +18,7 @@ func NewSourceUseCase(repository *boundaries.Repository) *SourceUseCase {
 func (usecase *SourceUseCase) CreateSource(userId dto.UserId, sourceDto dto.SourceCreateDto) error {
 	user, _ := usecase.repository.Users.GetById(userId)
 	if !usecase.isNewNameOfSource(sourceDto.Name, userId) {
-		return errors.New("not unique name of spell in source")
+		return errors.New("not unique name of source")
 	}
 	dataToWrite := dto.SourceToRepositoryDto{
 		Id:          dto.SourceId(uuid.New()),

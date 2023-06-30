@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"os"
 	"spells.tvblackman1.ru/lib/pagination"
@@ -27,8 +28,13 @@ func (usecase *SpellUseCase) CreateSpell(userId dto.UserId, spellDto dto.CreateS
 			println(spellDto.Name)
 			return errors.New("not valid material component")
 		}
-		if !usecase.isNewNameInSpellSource(spellDto.Name, spellDto.SourceId) {
-			return errors.New("not unique name of spell in source")
+		unique, err := usecase.isNewNameInSpellSource(spellDto.Name, spellDto.SourceId)
+		if err != nil {
+			return errors.New(err.Error())
+		}
+		if !unique {
+			errorText := fmt.Sprintf("not unique name of spell in source: [%s]", spellDto.Name)
+			return errors.New(errorText)
 		}
 	}
 
@@ -74,7 +80,7 @@ func (usecase *SpellUseCase) isUserHavingSpellSource(userId dto.UserId, sourceId
 	return source.UploadedBy == userId
 }
 
-func (usecase *SpellUseCase) isNewNameInSpellSource(spellName string, sourceId dto.SourceId) bool {
+func (usecase *SpellUseCase) isNewNameInSpellSource(spellName string, sourceId dto.SourceId) (bool, error) {
 	spells, err := usecase.repository.Spells.GetSpells(dto.SearchSpellDto{
 		EqualsName: spellName,
 		Sources:    []dto.SourceId{sourceId},
@@ -82,12 +88,12 @@ func (usecase *SpellUseCase) isNewNameInSpellSource(spellName string, sourceId d
 		Limit: 1,
 	})
 	if err != nil {
-		return false
+		return false, err
 	}
 	for _, spell := range spells {
 		if spell.Name == spellName {
-			return false
+			return false, nil
 		}
 	}
-	return true
+	return true, nil
 }

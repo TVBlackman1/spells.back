@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"spells.tvblackman1.ru/lib/config"
-	"spells.tvblackman1.ru/lib/importer"
+	importer_v2 "spells.tvblackman1.ru/lib/importer.v2"
 	"spells.tvblackman1.ru/lib/postgres"
 	"spells.tvblackman1.ru/pkg/domain/dto"
 	"spells.tvblackman1.ru/pkg/domain/usecases"
@@ -36,92 +37,81 @@ func main() {
 		log.Fatalf("repo err: %s", err.Error())
 	}
 	useCases := usecases.NewUseCases(repo)
-	file, err := os.Open("./init/seeds/dnd-spells.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	data := importer.GetSpellsData(file)
 	user, err := setUser(useCases)
 	if err != nil {
 		fmt.Println(err)
 	}
-	uploadSourcesToDb(user.Id, useCases, data)
-	uploadSpellsToDb(user.Id, useCases, data)
 
+	directoryPath := path.Dir("./init/seeds/spell.categories/")
+	files, err := os.ReadDir(directoryPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, file := range files {
+		fullFilename := path.Join(directoryPath, file.Name())
+		loadFileDataToDb(user.Id, useCases, fullFilename)
+	}
 }
 
-func uploadSourcesToDb(userId dto.UserId, useCases *usecases.UseCases, data *importer.MainStructure) {
-	for sourceName, source := range data.SourceList {
-		err := useCases.Source.CreateSource(userId, dto.SourceCreateDto{
-			Name:        sourceName,
-			Description: source.Text.Ru.Title,
-			IsOfficial:  source.Official,
+func loadFileDataToDb(userId dto.UserId, useCases *usecases.UseCases, filename string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	data := importer_v2.GetSpellsData(file)
+	uploadSourcesToDbv2(userId, useCases, data)
+	uploadSpellsToDbv2(userId, useCases, data)
+	println(data.ShortName)
+	return nil
+}
+
+func uploadSourcesToDbv2(userId dto.UserId, useCases *usecases.UseCases, data *importer_v2.MainStructure) {
+	err := useCases.Source.CreateSource(userId, dto.SourceCreateDto{
+		Name:        secureString(data.ShortName),
+		Description: secureString(data.Name),
+		IsOfficial:  data.IsOfficial,
+	})
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
+
+func uploadSpellsToDbv2(userId dto.UserId, useCases *usecases.UseCases, data *importer_v2.MainStructure) {
+	fmt.Printf("Uploading from %s\n", data.ShortName)
+
+	similarSources, _ := useCases.Source.GetSources(dto.UserId{}, dto.SearchSourceDto{
+		Name: secureString(data.ShortName),
+	})
+	var sourceId dto.SourceId
+	for _, source := range similarSources {
+		if source.Name == secureString(data.ShortName) {
+			sourceId = source.Id
+		}
+	}
+	for index, spell := range data.Spells {
+		err := useCases.Spell.CreateSpell(userId, dto.CreateSpellDto{
+			Name:                 secureString(spell.Name),
+			Level:                spell.Level,
+			Classes:              []string{},
+			Description:          secureString(spell.Description),
+			CastingTime:          spell.CastingTime,
+			Duration:             spell.Duration,
+			IsVerbal:             spell.IsVerbal,
+			IsSomatic:            spell.IsSomatic,
+			HasMaterialComponent: spell.HasMaterialComponent,
+			MaterialComponent:    spell.Materials,
+			MagicalSchool:        spell.School,
+			Distance:             spell.Distance,
+			IsRitual:             spell.IsRitual,
+			SourceId:             sourceId,
 		})
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Fatal(err)
+		}
+		if index%20 == 0 {
+			fmt.Printf("%d/%d\n", index, len(data.Spells))
 		}
 	}
-}
-
-func uploadSpellsToDb(userId dto.UserId, useCases *usecases.UseCases, data *importer.MainStructure) {
-	aliasSourceToId := getSourceIds(useCases, data.SourceList)
-	for ind, spell := range data.AllSpells {
-		ruSpell := spell.Ru
-		spellSourceNames := func() string {
-			if len(spell.Ru.Source) == 0 {
-				return spell.En.Source
-			} else {
-				return spell.Ru.Source
-			}
-		}()
-		spellLevel, err := spell.En.Level.Int64()
-		if err != nil {
-			fmt.Printf("not valid spell level: %s of spell %s\n", ruSpell.Level.String(), ruSpell.Name)
-			continue
-		}
-		//if ruSpell.Name != "Святилище" {
-		//	continue
-		//}
-		hasMaterialComponent := hasComponent(spell.En.Components, 'M')
-		isVerbal := hasComponent(spell.En.Components, 'V')
-		isSomatic := hasComponent(spell.En.Components, 'S')
-		sourceIds, err := aliasSourcesToIds(strings.Split(spellSourceNames, ", "), aliasSourceToId)
-		if err != nil {
-			fmt.Printf(err.Error(), "\n")
-			continue
-		}
-		for _, sourceId := range sourceIds {
-			err = useCases.Spell.CreateSpell(userId, dto.CreateSpellDto{
-				Name:                 ruSpell.Name,
-				Level:                int(spellLevel),
-				Classes:              []string{},
-				Description:          strings.Replace(ruSpell.Text, "'", "", -1),
-				CastingTime:          ruSpell.CastingTime,
-				Duration:             ruSpell.Duration,
-				IsVerbal:             isVerbal,
-				IsSomatic:            isSomatic,
-				HasMaterialComponent: hasMaterialComponent,
-				MaterialComponent:    ruSpell.Materials,
-				MagicalSchool:        ruSpell.School,
-				Distance:             ruSpell.Range,
-				IsRitual:             len(ruSpell.Ritual) > 0,
-				SourceId:             sourceId,
-			})
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-		if ind%20 == 0 {
-			fmt.Printf("%d/%d\n", ind, len(data.AllSpells))
-		}
-	}
-}
-
-func registerDefaultUser(useCases *usecases.UseCases) (dto.UserDto, error) {
-	return useCases.User.Register(dto.UserCreateDto{
-		Login:    "tvblackman1",
-		Password: "120474ba",
-	})
 }
 
 func setUser(useCases *usecases.UseCases) (dto.UserDto, error) {
@@ -144,34 +134,6 @@ func setUser(useCases *usecases.UseCases) (dto.UserDto, error) {
 	})
 }
 
-func getSourceIds(useCases *usecases.UseCases, sources map[string]importer.Source) map[string]dto.SourceId {
-	aliases := make(map[string]dto.SourceId)
-	for sourceName := range sources {
-		similarSources, _ := useCases.Source.GetSources(dto.UserId{}, dto.SearchSourceDto{
-			Name: sourceName,
-		})
-		for _, source := range similarSources {
-			if source.Name == sourceName {
-				aliases[source.Name] = source.Id
-			}
-		}
-	}
-	return aliases
-}
-
-func aliasSourcesToIds(sources []string, alias map[string]dto.SourceId) ([]dto.SourceId, error) {
-	ret := make([]dto.SourceId, len(sources))
-	for i, source := range sources {
-		var ok bool
-		ret[i], ok = alias[source]
-		if !ok {
-			return []dto.SourceId{}, fmt.Errorf("bad source name: %s", source)
-		}
-
-	}
-	return ret, nil
-}
-
-func hasComponent(components string, component rune) bool {
-	return strings.IndexRune(components, component) != -1
+func secureString(text string) string {
+	return strings.Replace(text, "'", "", -1)
 }

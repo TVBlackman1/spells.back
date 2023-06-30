@@ -32,6 +32,7 @@ func (rep *SourcesRepository) CreateSource(sourceDto dto.SourceToRepositoryDto) 
 	err := rep.db.Get(&uuidStr, request)
 	if err != nil {
 		fmt.Println(request)
+		fmt.Println(err.Error())
 		return err
 	}
 	return nil
