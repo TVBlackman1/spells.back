@@ -11,7 +11,6 @@ import (
 	"spells.tvblackman1.ru/pkg/domain/dto"
 	"spells.tvblackman1.ru/pkg/domain/usecases"
 	"spells.tvblackman1.ru/pkg/repository"
-	"strings"
 )
 
 func main() {
@@ -90,10 +89,10 @@ func uploadSpellsToDbv2(userId dto.UserId, useCases *usecases.UseCases, data *im
 	}
 	for index, spell := range data.Spells {
 		err := useCases.Spell.CreateSpell(userId, dto.CreateSpellDto{
-			Name:                 secureString(spell.Name),
+			Name:                 spell.Name,
 			Level:                spell.Level,
 			Classes:              []string{},
-			Description:          secureString(spell.Description),
+			Description:          spell.Description,
 			CastingTime:          spell.CastingTime,
 			Duration:             spell.Duration,
 			IsVerbal:             spell.IsVerbal,
@@ -132,8 +131,4 @@ func setUser(useCases *usecases.UseCases) (dto.UserDto, error) {
 		Login:    "tvblackman1",
 		Password: "120474ba",
 	})
-}
-
-func secureString(text string) string {
-	return strings.Replace(text, "'", "", -1)
 }
