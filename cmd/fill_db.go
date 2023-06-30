@@ -67,8 +67,8 @@ func loadFileDataToDb(userId dto.UserId, useCases *usecases.UseCases, filename s
 
 func uploadSourcesToDbv2(userId dto.UserId, useCases *usecases.UseCases, data *importer_v2.MainStructure) {
 	err := useCases.Source.CreateSource(userId, dto.SourceCreateDto{
-		Name:        secureString(data.ShortName),
-		Description: secureString(data.Name),
+		Name:        data.ShortName,
+		Description: data.Name,
 		IsOfficial:  data.IsOfficial,
 	})
 	if err != nil {
@@ -80,11 +80,11 @@ func uploadSpellsToDbv2(userId dto.UserId, useCases *usecases.UseCases, data *im
 	fmt.Printf("Uploading from %s\n", data.ShortName)
 
 	similarSources, _ := useCases.Source.GetSources(dto.UserId{}, dto.SearchSourceDto{
-		Name: secureString(data.ShortName),
+		Name: data.ShortName,
 	})
 	var sourceId dto.SourceId
 	for _, source := range similarSources {
-		if source.Name == secureString(data.ShortName) {
+		if source.Name == data.ShortName {
 			sourceId = source.Id
 		}
 	}

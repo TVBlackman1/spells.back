@@ -3,6 +3,8 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/postgres"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"os"
@@ -18,20 +20,22 @@ func NewSourcesRepository(db *sqlx.DB) *SourcesRepository {
 }
 
 func (rep *SourcesRepository) CreateSource(sourceDto dto.SourceToRepositoryDto) error {
-	request := fmt.Sprintf("INSERT INTO %s(id, name, "+
-		"description, is_official, author, uploaded_by) VALUES ('%s', '%s', '%s', '%t', '%s', '%s') RETURNING id;\n",
-		SourcesDbName,
-		uuid.UUID(sourceDto.Id).String(),
-		sourceDto.Name,
-		sourceDto.Description,
-		sourceDto.IsOfficial,
-		sourceDto.Author,
-		uuid.UUID(sourceDto.UploadedBy).String(),
-	)
+	dialect := goqu.Dialect("postgres")
+	request := dialect.Insert(SourcesDbName).Rows(
+		goqu.Record{
+			"id":          uuid.UUID(sourceDto.Id).String(),
+			"name":        sourceDto.Name,
+			"description": sourceDto.Description,
+			"is_official": sourceDto.IsOfficial,
+			"author":      sourceDto.Author,
+			"uploaded_by": uuid.UUID(sourceDto.UploadedBy).String(),
+		}).
+		Returning("id")
+	sql, _, _ := request.ToSQL()
 	var uuidStr string
-	err := rep.db.Get(&uuidStr, request)
+	err := rep.db.Get(&uuidStr, sql)
 	if err != nil {
-		fmt.Println(request)
+		fmt.Println(sql)
 		fmt.Println(err.Error())
 		return err
 	}
@@ -39,24 +43,30 @@ func (rep *SourcesRepository) CreateSource(sourceDto dto.SourceToRepositoryDto) 
 }
 
 func (rep *SourcesRepository) GetById(id dto.SourceId) (dto.SourceDto, error) {
-	request := fmt.Sprintf("select id, name, description, version_number, is_official, author, uploaded_by from %s where id='%s';\n",
-		SourcesDbName, uuid.UUID(id).String(),
-	)
+	idStringifier := uuid.UUID(id).String()
+	dialect := goqu.Dialect("postgres")
+	request := dialect.
+		Select("id", "name", "description", "is_official", "author", "uploaded_by").
+		From(SourcesDbName).
+		Where(goqu.C("id").Eq(idStringifier))
+	sql, _, _ := request.ToSQL()
 	var source SourceDb
-	err := rep.db.Get(&source, request)
+	err := rep.db.Get(&source, sql)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Bad requests: %s. While getting source by id: %s\n", err.Error(), uuid.UUID(id).String())
+		fmt.Fprintf(os.Stderr, "Bad requests: %s. While getting source by id: %s\n", err.Error(), idStringifier)
 		return dto.SourceDto{}, err
 	}
 	return rep.dbSourceToSourceDto(source), nil
 }
 
 func (rep *SourcesRepository) GetSources(userId dto.UserId, params dto.SearchSourceDto) ([]dto.SourceDto, error) {
-	request := fmt.Sprintf("select id, name, description, version_number, is_official, author, uploaded_by from %s;\n",
-		SourcesDbName,
-	)
+	dialect := goqu.Dialect("postgres")
+	request := dialect.
+		Select("id", "name", "description", "is_official", "author", "uploaded_by").
+		From(SourcesDbName)
+	sql, _, _ := request.ToSQL()
 	var sources []SourceDb
-	err := rep.db.Select(&sources, request)
+	err := rep.db.Select(&sources, sql)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Bad requests: %s\n", err.Error())
 		return []dto.SourceDto{}, err
