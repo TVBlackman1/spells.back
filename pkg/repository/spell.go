@@ -66,44 +66,43 @@ func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pag
 
 	dialect := goqu.Dialect("postgres")
 	request := dialect.
-		Select("spells.id", "spells.name as \"spells_name\"", "spells.level", "spells.description", "spells.casting_time").
-		Select("spells.duration", "spells.is_verbal", "spells.is_somatic", "spells.is_material").
-		Select("spells.material_content", "spells.magical_school", "spells.distance", "spells.is_ritual").
-		Select("spells.source_id").
+		Select("spells.id", goqu.T("spells").Col("name").As("spells_name"), "spells.level", "spells.description", "spells.casting_time",
+			"spells.duration", "spells.is_verbal", "spells.is_somatic", "spells.is_material",
+			"spells.material_content", "spells.magical_school", "spells.distance", "spells.is_ritual", "spells.source_id",
+			goqu.T("sources").Col("name").As("sources_name")).
 		From(SpellsDbName).
-		LeftJoin(goqu.T(SourcesDbName), goqu.On(goqu.I("spells.source_id").Eq(goqu.I("sources.id")))).
-		Select(goqu.T("sources").Col("name").As("sources_name"))
+		LeftJoin(goqu.T(SourcesDbName), goqu.On(goqu.I("spells.source_id").Eq(goqu.I("sources.id"))))
 	if len(params.Sources) > 0 {
 		sourcesToRequest := getSourcesEnumeration(params.Sources)
-		request.Where(goqu.C("sources.id").In(sourcesToRequest))
+		request = request.Where(goqu.C("sources.id").In(sourcesToRequest))
 	}
 	if len(params.EqualsName) > 0 {
-		request.Where(goqu.C("spells.name").Eq(params.EqualsName))
+		request = request.Where(goqu.C("spells.name").Eq(params.EqualsName))
 	} else if len(params.LikeName) > 0 {
-		request.Where(goqu.C("spells.name").ILike(params.LikeName))
+		request = request.Where(goqu.C("spells.name").ILike(params.LikeName))
 	}
 	if params.IsVerbal != tribool.Unset {
-		request.Where(goqu.C("spells.is_verbal").Eq(params.IsVerbal == tribool.True))
+		request = request.Where(goqu.C("spells.is_verbal").Eq(params.IsVerbal == tribool.True))
 	}
 	if params.IsSomatic != tribool.Unset {
-		request.Where(goqu.C("spells.is_somatic").Eq(params.IsSomatic == tribool.True))
+		request = request.Where(goqu.C("spells.is_somatic").Eq(params.IsSomatic == tribool.True))
 	}
 	if params.HasMaterialComponent != tribool.Unset {
-		request.Where(goqu.C("spells.is_material").Eq(params.HasMaterialComponent == tribool.True))
+		request = request.Where(goqu.C("spells.is_material").Eq(params.HasMaterialComponent == tribool.True))
 	}
 	if params.IsRitual != tribool.Unset {
-		request.Where(goqu.C("spells.is_ritual").Eq(params.IsRitual == tribool.True))
+		request = request.Where(goqu.C("spells.is_ritual").Eq(params.IsRitual == tribool.True))
 	}
 	if len(params.Levels) > 0 {
 		levelsToRequest := getLevelsEnumeration(params.Levels)
-		request.Where(goqu.C("spells.level").In(levelsToRequest))
+		request = request.Where(goqu.C("spells.level").In(levelsToRequest))
 	}
 	if len(params.MagicalSchools) > 0 {
 		schoolsToRequest := getSchoolsEnumeration(params.MagicalSchools)
-		request.Where(goqu.C("spells.magical_school").In(schoolsToRequest))
+		request = request.Where(goqu.C("spells.magical_school").In(schoolsToRequest))
 	}
-	request.Order(goqu.C("spells.name").Asc())
-	request.Limit(uint(limit)).Offset(uint(offset))
+	request = request.Order(goqu.C("spells_name").Asc())
+	request = request.Limit(uint(limit)).Offset(uint(offset))
 	var spells []SpellDb
 	sql, _, _ := request.ToSQL()
 	err := rep.db.Select(&spells, sql)
