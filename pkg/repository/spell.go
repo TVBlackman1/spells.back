@@ -7,7 +7,6 @@ import (
 	_ "github.com/doug-martin/goqu/v9/dialect/postgres"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-	"os"
 	"spells.tvblackman1.ru/lib/pagination"
 	"spells.tvblackman1.ru/lib/tribool"
 	"spells.tvblackman1.ru/pkg/domain/dto"
@@ -46,12 +45,12 @@ func (rep *SpellsRepository) CreateSpell(spellDto dto.SpellToRepositoryDto) erro
 				"source_id":        uuid.UUID(spellDto.SourceId).String(),
 			}).
 		Returning("id")
-	sql, _, _ := request.ToSQL()
+	sqlRequest, _, _ := request.ToSQL()
 	//fmt.Println(sql)
 	var uuidStr string
-	err := rep.db.Get(&uuidStr, sql)
+	err := rep.db.Get(&uuidStr, sqlRequest)
 	if err != nil {
-		fmt.Println(sql)
+		fmt.Println(sqlRequest)
 		return err
 	}
 	return nil
@@ -104,11 +103,11 @@ func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pag
 	request = request.Order(goqu.C("spells_name").Asc())
 	request = request.Limit(uint(limit)).Offset(uint(offset))
 	var spells []SpellDb
-	sql, _, _ := request.ToSQL()
-	err := rep.db.Select(&spells, sql)
+	sqlRequest, _, _ := request.ToSQL()
+	err := rep.db.Select(&spells, sqlRequest)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Bad request: %s\n", err.Error())
-		fmt.Println(sql)
+		fmt.Printf("Bad request: %s\n", err.Error())
+		fmt.Println(sqlRequest)
 		return []dto.SpellDto{}, err
 	}
 	ret := make([]dto.SpellDto, len(spells))
@@ -118,7 +117,7 @@ func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pag
 	return ret, nil
 }
 
-func (rep *SpellsRepository) GetById(id dto.SpellId) dto.SpellDto {
+func (rep *SpellsRepository) GetById(_ dto.SpellId) dto.SpellDto {
 	return dto.SpellDto{}
 }
 
