@@ -135,7 +135,7 @@ func (rep *SpellsRepository) dbSpellToSpellDto(spellDb SpellDb) dto.SpellDto {
 		MagicalSchool:        spellDb.MagicalSchool,
 		Distance:             spellDb.Distance,
 		IsRitual:             spellDb.IsRitual,
-		SourceId:             dto.SourceId{},
+		SourceId:             dto.SourceId(spellDb.SourceId),
 		SourceName:           spellDb.SourceName,
 	}
 	if spellDb.MaterialContent.Valid {
