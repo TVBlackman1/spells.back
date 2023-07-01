@@ -19,4 +19,5 @@ func NewHandler(usecases *usecases.UseCases, router chi.Router) *V1Handler {
 
 func (handler *V1Handler) Route(r chi.Router) {
 	r.Route("/spells", handler.spellsRoute)
+	r.Route("/url-sets", handler.urlSetsRoute)
 }

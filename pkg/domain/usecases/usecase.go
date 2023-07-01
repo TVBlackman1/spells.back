@@ -7,6 +7,7 @@ type UseCases struct {
 	Source *SourceUseCase
 	User   *UserUseCase
 	Spell  *SpellUseCase
+	UrlSet *UrlSetUseCase
 }
 
 func NewUseCases(repository *boundaries.Repository) *UseCases {
@@ -15,5 +16,6 @@ func NewUseCases(repository *boundaries.Repository) *UseCases {
 		Source: NewSourceUseCase(repository),
 		User:   NewUserUseCase(repository),
 		Spell:  NewSpellUseCase(repository),
+		UrlSet: NewUrlSetUseCase(repository),
 	}
 }

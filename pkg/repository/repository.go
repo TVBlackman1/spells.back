@@ -11,6 +11,7 @@ func NewRepository(db *sqlx.DB) (*boundaries.Repository, error) {
 	repo.Sources = NewSourcesRepository(db)
 	repo.Sets = NewSetsRepository(db)
 	repo.Spells = NewSpellsRepository(db)
+	repo.UrlSets = NewUrlSetsRepository(db)
 
 	return repo, nil
 }

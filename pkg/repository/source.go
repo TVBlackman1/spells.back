@@ -31,11 +31,11 @@ func (rep *SourcesRepository) CreateSource(sourceDto dto.SourceToRepositoryDto) 
 			"uploaded_by": uuid.UUID(sourceDto.UploadedBy).String(),
 		}).
 		Returning("id")
-	sql, _, _ := request.ToSQL()
+	sqlRequest, _, _ := request.ToSQL()
 	var uuidStr string
-	err := rep.db.Get(&uuidStr, sql)
+	err := rep.db.Get(&uuidStr, sqlRequest)
 	if err != nil {
-		fmt.Println(sql)
+		fmt.Println(sqlRequest)
 		fmt.Println(err.Error())
 		return err
 	}
@@ -49,11 +49,11 @@ func (rep *SourcesRepository) GetById(id dto.SourceId) (dto.SourceDto, error) {
 		Select("id", "name", "description", "is_official", "author", "uploaded_by").
 		From(SourcesDbName).
 		Where(goqu.C("id").Eq(idStringifier))
-	sql, _, _ := request.ToSQL()
+	sqlRequest, _, _ := request.ToSQL()
 	var source SourceDb
-	err := rep.db.Get(&source, sql)
+	err := rep.db.Get(&source, sqlRequest)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Bad requests: %s. While getting source by id: %s\n", err.Error(), idStringifier)
+		fmt.Printf("Bad requests: %s. While getting source by id: %s\n", err.Error(), idStringifier)
 		return dto.SourceDto{}, err
 	}
 	return rep.dbSourceToSourceDto(source), nil
@@ -64,9 +64,9 @@ func (rep *SourcesRepository) GetSources(userId dto.UserId, params dto.SearchSou
 	request := dialect.
 		Select("id", "name", "description", "is_official", "author", "uploaded_by").
 		From(SourcesDbName)
-	sql, _, _ := request.ToSQL()
+	sqlRequest, _, _ := request.ToSQL()
 	var sources []SourceDb
-	err := rep.db.Select(&sources, sql)
+	err := rep.db.Select(&sources, sqlRequest)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Bad requests: %s\n", err.Error())
 		return []dto.SourceDto{}, err

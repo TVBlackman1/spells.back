@@ -1,0 +1,150 @@
+basePath: /api
+definitions:
+  v1.prettySetDto:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      uri:
+        type: string
+    type: object
+  v1.prettySpell:
+    properties:
+      casting_time:
+        type: string
+      classes:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      distance:
+        type: string
+      duration:
+        type: string
+      has_material_component:
+        type: boolean
+      id:
+        type: string
+      is_ritual:
+        type: boolean
+      is_somatic:
+        type: boolean
+      is_verbal:
+        type: boolean
+      level:
+        type: integer
+      magical_school:
+        type: string
+      material_component:
+        type: string
+      name:
+        type: string
+      source_id:
+        type: string
+      source_name:
+        type: string
+    type: object
+  v1.renameUrlSetDto:
+    properties:
+      name:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /v1/spells/:
+    get:
+      consumes:
+      - application/json
+      description: get spells by filters
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/v1.prettySpell'
+            type: array
+      summary: Get spell list
+      tags:
+      - spells
+  /v1/url-sets/:
+    post:
+      consumes:
+      - application/json
+      description: Create empty url set without name.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: link to url set
+          schema:
+            type: string
+      summary: Create url set
+      tags:
+      - url-sets
+  /v1/url-sets/{unique}:
+    get:
+      consumes:
+      - application/json
+      description: Get basic info about url set. Just name.
+      parameters:
+      - description: url set unique link part
+        in: path
+        name: unique
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.prettySetDto'
+      summary: Get url set
+      tags:
+      - url-sets
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: url set unique link part
+        in: path
+        name: unique
+        required: true
+        type: string
+      - description: Updating data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/v1.renameUrlSetDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Rename url set
+      tags:
+      - url-sets
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
