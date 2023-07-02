@@ -212,6 +212,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/url-sets/{unique}/remove/{spellId}": {
+            "delete": {
+                "description": "Can remove spell from url set",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "url-sets"
+                ],
+                "summary": "Remove spell from url set",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "url set unique link part",
+                        "name": "unique",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of spell",
+                        "name": "spellId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/v1/url-sets/{unique}/spells": {
             "get": {
                 "description": "Get only spells in url set",

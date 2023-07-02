@@ -74,6 +74,16 @@ func (usecase *UrlSetUseCase) AddSpell(linkPart string, spellId dto.SpellId) err
 	return usecase.repository.UrlSets.AddSpell(urlSet.Id, spellId)
 }
 
+func (usecase *UrlSetUseCase) RemoveSpell(linkPart string, spellId dto.SpellId) error {
+	// TODO if spell exists, if link exists
+	link := usecase.linkFromLinkPart(linkPart)
+	urlSet, err := usecase.repository.UrlSets.GetByLink(link)
+	if err != nil {
+		return err
+	}
+	return usecase.repository.UrlSets.RemoveSpell(urlSet.Id, spellId)
+}
+
 func (usecase *UrlSetUseCase) GetSpells(linkPart string, search dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellDto, pagination.Meta, error) {
 	link := usecase.linkFromLinkPart(linkPart)
 	urlSet, err := usecase.repository.UrlSets.GetByLink(link)

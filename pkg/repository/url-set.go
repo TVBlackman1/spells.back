@@ -170,7 +170,7 @@ func (rep *UrlSetsRepository) RenameUrlSet(id dto.UrlSetId, newName string) erro
 func (rep *UrlSetsRepository) AddSpell(id dto.UrlSetId, spellId dto.SpellId) error {
 	dialect := goqu.Dialect("postgres")
 	request := dialect.
-		Insert(UrlSetsToSpellsDbName).Rows(
+		Insert(fields.UrlSetToSpell().T()).Rows(
 		goqu.Record{
 			"id":         uuid.New().String(),
 			"url_set_id": uuid.UUID(id).String(),
@@ -187,6 +187,19 @@ func (rep *UrlSetsRepository) AddSpell(id dto.UrlSetId, spellId dto.SpellId) err
 	return nil
 }
 
-func (rep *UrlSetsRepository) RemoveSpell(id dto.UrlSetId, spellId dto.SpellId) error {
+func (rep *UrlSetsRepository) RemoveSpell(id dto.UrlSetId, _spellId dto.SpellId) error {
+	urlSetId := uuid.UUID(id).String()
+	spellId := uuid.UUID(_spellId).String()
+	dialect := goqu.Dialect("postgres")
+	request := dialect.From(fields.UrlSetToSpell().T()).
+		Where(fields.UrlSetToSpell().UrlSetId().Eq(urlSetId)).
+		Where(fields.UrlSetToSpell().SpellId().Eq(spellId)).Delete()
+	sqlRequest, _, _ := request.ToSQL()
+	var uuidStr string
+	err := rep.db.Get(&uuidStr, sqlRequest)
+	if err != nil {
+		fmt.Printf("Bad request: %s while deleting spell to url set. Request: %s\n", err.Error(), sqlRequest)
+		return err
+	}
 	return nil
 }

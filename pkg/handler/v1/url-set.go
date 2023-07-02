@@ -18,6 +18,7 @@ func (handler *V1Handler) urlSetsRoute(r chi.Router) {
 	handler.getAllSpells(r)
 	handler.addSpellToUrlSet(r)
 	handler.getSpellsOfUrlSet(r)
+	handler.removeSpellFromUrlSet(r)
 }
 
 // ShowAccount godoc
@@ -84,8 +85,6 @@ func (handler *V1Handler) renameUrlSet(r chi.Router) {
 	})
 }
 
-// [1], [4]
-
 // ShowAccount godoc
 // @Summary      Get list of all spells
 // @Description  get all spells. Overview for adding/removing spells to/from set
@@ -119,8 +118,6 @@ func (handler *V1Handler) getAllSpells(r chi.Router) {
 	})
 }
 
-// [2] [4.5]
-
 // ShowAccount godoc
 // @Summary      Add spell to url set
 // @Description  Can add spell to url set
@@ -145,13 +142,29 @@ func (handler *V1Handler) addSpellToUrlSet(r chi.Router) {
 	})
 }
 
-// 5
+// ShowAccount godoc
+// @Summary      Remove spell from url set
+// @Description  Can remove spell from url set
+// @Tags         url-sets
+// @Param        unique   path  string  true  "url set unique link part"
+// @Param        spellId  path  string  true  "id of spell"
+// @Accept       json
+// @Produce      json
+// @Success      200
+// @Router       /v1/url-sets/{unique}/remove/{spellId} [delete]
 func (handler *V1Handler) removeSpellFromUrlSet(r chi.Router) {
 	r.Delete("/{unique}/remove/{spellId}", func(w http.ResponseWriter, r *http.Request) {
+		uniqueLinkPart := chi.URLParam(r, "unique")
+		spellIdURLParam := chi.URLParam(r, "spellId")
+		_spellId, err := uuid.FromString(spellIdURLParam)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		spellId := dto.SpellId(_spellId)
+		handler.usecases.UrlSet.RemoveSpell(uniqueLinkPart, spellId)
 	})
 }
-
-// [3]
 
 // ShowAccount godoc
 // @Summary      Get list of url set spells

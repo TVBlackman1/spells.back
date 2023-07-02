@@ -191,6 +191,30 @@ paths:
       summary: Get list of all spells
       tags:
       - url-sets
+  /v1/url-sets/{unique}/remove/{spellId}:
+    delete:
+      consumes:
+      - application/json
+      description: Can remove spell from url set
+      parameters:
+      - description: url set unique link part
+        in: path
+        name: unique
+        required: true
+        type: string
+      - description: id of spell
+        in: path
+        name: spellId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Remove spell from url set
+      tags:
+      - url-sets
   /v1/url-sets/{unique}/spells:
     get:
       consumes:
