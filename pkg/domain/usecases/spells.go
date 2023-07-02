@@ -60,11 +60,11 @@ func (usecase *SpellUseCase) CreateSpell(userId dto.UserId, spellDto dto.CreateS
 	return err
 }
 
-func (usecase *SpellUseCase) GetSpellList(userId dto.UserId, searchDto dto.SearchSpellDto, pagination pagination.Pagination) ([]dto.SpellDto, error) {
+func (usecase *SpellUseCase) GetSpellList(userId dto.UserId, searchDto dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellDto, pagination.Meta, error) {
 	if len(searchDto.Sources) == 0 {
 		// TODO default sources + user custom sources (extern libs or written by this user)
 	}
-	return usecase.repository.Spells.GetSpells(searchDto, pagination)
+	return usecase.repository.Spells.GetSpells(searchDto, pag)
 }
 
 func (usecase *SpellUseCase) checkMaterialComponent(spellDto dto.CreateSpellDto) bool {
@@ -81,7 +81,7 @@ func (usecase *SpellUseCase) isUserHavingSpellSource(userId dto.UserId, sourceId
 }
 
 func (usecase *SpellUseCase) isNewNameInSpellSource(spellName string, sourceId dto.SourceId) (bool, error) {
-	spells, err := usecase.repository.Spells.GetSpells(dto.SearchSpellDto{
+	spells, _, err := usecase.repository.Spells.GetSpells(dto.SearchSpellDto{
 		EqualsName: spellName,
 		Sources:    []dto.SourceId{sourceId},
 	}, pagination.Pagination{

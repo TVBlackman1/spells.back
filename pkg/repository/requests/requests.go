@@ -39,7 +39,11 @@ func SelectSpellsWithSourceName(searchParams dto.SearchSpellDto) *goqu.SelectDat
 		}
 		request = request.Where(fields.Source().Id().In(sources))
 	}
-	if len(searchParams.EqualsName) > 0 {
+	// TODO Parse to all uuid invokes
+	if uuid.UUID(searchParams.Id) != uuid.Nil {
+		stringId := uuid.UUID(searchParams.Id).String()
+		request = request.Where(fields.Spell().Id().Eq(stringId))
+	} else if len(searchParams.EqualsName) > 0 {
 		request = request.Where(fields.Spell().Name().Eq(searchParams.EqualsName))
 	} else if len(searchParams.LikeName) > 0 {
 		like := fmt.Sprintf("%%%s%%", searchParams.LikeName)
@@ -64,4 +68,8 @@ func SelectSpellsWithSourceName(searchParams dto.SearchSpellDto) *goqu.SelectDat
 		request = request.Where(fields.Spell().MagicalSchool().In(searchParams.MagicalSchools))
 	}
 	return request
+}
+
+func CountRows(request *goqu.SelectDataset) *goqu.SelectDataset {
+	return request.Select(goqu.L("COUNT(*)"))
 }

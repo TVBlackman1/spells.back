@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"math/rand"
@@ -51,29 +52,42 @@ func (usecase *UrlSetUseCase) GetUrlSet(linkPart string) (dto.UrlSetDto, error) 
 }
 
 func (usecase *UrlSetUseCase) AddSpell(linkPart string, spellId dto.SpellId) error {
-	// TODO if spell exists, if link exists, if spell not in set
+	// TODO if spell exists, if link exists
 	link := usecase.linkFromLinkPart(linkPart)
 	urlSet, err := usecase.repository.UrlSets.GetByLink(link)
 	if err != nil {
 		return err
 	}
+	_, meta, err := usecase.repository.UrlSets.GetSpells(urlSet.Id, dto.SearchSpellDto{
+		Id: spellId,
+	}, pagination.Pagination{
+		Limit: 1,
+	})
+	if err != nil {
+		fmt.Printf("can not get spell with id %s\n", uuid.UUID(spellId).String())
+		return err
+	}
+	spellAlreadyExists := meta.All != 0
+	if spellAlreadyExists {
+		return errors.New("already exists")
+	}
 	return usecase.repository.UrlSets.AddSpell(urlSet.Id, spellId)
 }
 
-func (usecase *UrlSetUseCase) GetSpells(linkPart string, search dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellDto, error) {
+func (usecase *UrlSetUseCase) GetSpells(linkPart string, search dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellDto, pagination.Meta, error) {
 	link := usecase.linkFromLinkPart(linkPart)
 	urlSet, err := usecase.repository.UrlSets.GetByLink(link)
 	if err != nil {
-		return []dto.SpellDto{}, err
+		return []dto.SpellDto{}, pagination.Meta{}, err
 	}
 	return usecase.repository.UrlSets.GetSpells(urlSet.Id, search, pag)
 }
 
-func (usecase *UrlSetUseCase) GetAllSpells(linkPart string, search dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellMarkedDto, error) {
+func (usecase *UrlSetUseCase) GetAllSpells(linkPart string, search dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellMarkedDto, pagination.Meta, error) {
 	link := usecase.linkFromLinkPart(linkPart)
 	urlSet, err := usecase.repository.UrlSets.GetByLink(link)
 	if err != nil {
-		return []dto.SpellMarkedDto{}, err
+		return []dto.SpellMarkedDto{}, pagination.Meta{}, err
 	}
 	return usecase.repository.UrlSets.GetAllSpells(urlSet.Id, search, pag)
 }

@@ -54,29 +54,37 @@ func (rep *SpellsRepository) CreateSpell(spellDto dto.SpellToRepositoryDto) erro
 	return nil
 }
 
-func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pagination.Pagination) ([]dto.SpellDto, error) {
-	if pagination.PageNumber < 1 {
-		pagination.PageNumber = 1
+func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellDto, pagination.Meta, error) {
+	if pag.PageNumber < 1 {
+		pag.PageNumber = 1
 	}
-	limit := pagination.Limit
-	offset := pagination.Limit * (pagination.PageNumber - 1)
+	limit := pag.Limit
+	offset := pag.Limit * (pag.PageNumber - 1)
 
 	request := requests.SelectSpellsWithSourceName(params)
+	requestCount := requests.CountRows(request)
 	request = request.Order(goqu.C("spells_name").Asc())
+
 	request = request.Limit(uint(limit)).Offset(uint(offset))
+
 	var spells []dbdto.SpellDb
+	var count int
+	sqlCountRequest, _, _ := requestCount.ToSQL()
 	sqlRequest, _, _ := request.ToSQL()
+
+	_ = rep.db.Get(&count, sqlCountRequest)
 	err := rep.db.Select(&spells, sqlRequest)
 	if err != nil {
 		fmt.Printf("Bad request: %s\n", err.Error())
 		fmt.Println(sqlRequest)
-		return []dto.SpellDto{}, err
+		return []dto.SpellDto{}, pagination.Meta{}, err
 	}
 	ret := make([]dto.SpellDto, len(spells))
 	for i := range ret {
 		ret[i] = dbdto.DbSpellToSpellDto(spells[i])
 	}
-	return ret, nil
+	meta := pagination.GetMeta(limit, count, pag.PageNumber)
+	return ret, meta, nil
 }
 
 func (rep *SpellsRepository) GetById(_ dto.SpellId) dto.SpellDto {

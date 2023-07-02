@@ -89,6 +89,7 @@ type SpellToRepositoryDto struct {
 }
 
 type SearchSpellDto struct {
+	Id                   SpellId
 	LikeName             string
 	EqualsName           string
 	IsRitual             tribool.Tribool

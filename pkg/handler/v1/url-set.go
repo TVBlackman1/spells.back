@@ -84,7 +84,7 @@ func (handler *V1Handler) renameUrlSet(r chi.Router) {
 	})
 }
 
-// [1], 4
+// [1], [4]
 
 // ShowAccount godoc
 // @Summary      Get list of all spells
@@ -98,7 +98,7 @@ func (handler *V1Handler) renameUrlSet(r chi.Router) {
 func (handler *V1Handler) getAllSpells(r chi.Router) {
 	r.Get("/{unique}/all-spells", func(w http.ResponseWriter, r *http.Request) {
 		uniqueLinkPart := chi.URLParam(r, "unique")
-		markedSpells, err := handler.usecases.UrlSet.GetAllSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
+		markedSpells, _, err := handler.usecases.UrlSet.GetAllSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
 			Limit:      10,
 			PageNumber: 1,
 		})
@@ -119,7 +119,7 @@ func (handler *V1Handler) getAllSpells(r chi.Router) {
 	})
 }
 
-// [2]
+// [2] [4.5]
 
 // ShowAccount godoc
 // @Summary      Add spell to url set
@@ -165,7 +165,7 @@ func (handler *V1Handler) removeSpellFromUrlSet(r chi.Router) {
 func (handler *V1Handler) getSpellsOfUrlSet(r chi.Router) {
 	r.Get("/{unique}/spells", func(w http.ResponseWriter, r *http.Request) {
 		uniqueLinkPart := chi.URLParam(r, "unique")
-		spells, err := handler.usecases.UrlSet.GetSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
+		spells, _, err := handler.usecases.UrlSet.GetSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
 			Limit:      10,
 			PageNumber: 1,
 		})
