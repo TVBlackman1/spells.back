@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/postgres"
@@ -9,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"spells.tvblackman1.ru/lib/pagination"
 	"spells.tvblackman1.ru/pkg/domain/dto"
+	dbdto "spells.tvblackman1.ru/pkg/repository/dto"
 	"spells.tvblackman1.ru/pkg/repository/requests"
 	"strings"
 )
@@ -45,7 +45,6 @@ func (rep *SpellsRepository) CreateSpell(spellDto dto.SpellToRepositoryDto) erro
 			}).
 		Returning("id")
 	sqlRequest, _, _ := request.ToSQL()
-	//fmt.Println(sql)
 	var uuidStr string
 	err := rep.db.Get(&uuidStr, sqlRequest)
 	if err != nil {
@@ -65,7 +64,7 @@ func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pag
 	request := requests.SelectSpellsWithSourceName(params)
 	request = request.Order(goqu.C("spells_name").Asc())
 	request = request.Limit(uint(limit)).Offset(uint(offset))
-	var spells []SpellDb
+	var spells []dbdto.SpellDb
 	sqlRequest, _, _ := request.ToSQL()
 	err := rep.db.Select(&spells, sqlRequest)
 	if err != nil {
@@ -75,52 +74,11 @@ func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pag
 	}
 	ret := make([]dto.SpellDto, len(spells))
 	for i := range ret {
-		ret[i] = rep.dbSpellToSpellDto(spells[i])
+		ret[i] = dbdto.DbSpellToSpellDto(spells[i])
 	}
 	return ret, nil
 }
 
 func (rep *SpellsRepository) GetById(_ dto.SpellId) dto.SpellDto {
 	return dto.SpellDto{}
-}
-
-func (rep *SpellsRepository) dbSpellToSpellDto(spellDb SpellDb) dto.SpellDto {
-	res := dto.SpellDto{
-		Id:                   dto.SpellId(spellDb.Id),
-		Name:                 spellDb.Name,
-		Level:                spellDb.Level,
-		Description:          spellDb.Description,
-		CastingTime:          spellDb.CastingTime,
-		Duration:             spellDb.Duration,
-		IsVerbal:             spellDb.IsVerbal,
-		IsSomatic:            spellDb.IsSomatic,
-		HasMaterialComponent: spellDb.HasMaterial,
-		MagicalSchool:        spellDb.MagicalSchool,
-		Distance:             spellDb.Distance,
-		IsRitual:             spellDb.IsRitual,
-		SourceId:             dto.SourceId(spellDb.SourceId),
-		SourceName:           spellDb.SourceName,
-	}
-	if spellDb.MaterialContent.Valid {
-		res.MaterialComponent = spellDb.MaterialContent.String
-	}
-	return res
-}
-
-type SpellDb struct {
-	Id              uuid.UUID      `db:"id"`
-	Name            string         `db:"spells_name"`
-	Level           int            `db:"level"`
-	Description     string         `db:"description"`
-	CastingTime     string         `db:"casting_time"`
-	MagicalSchool   string         `db:"magical_school"`
-	Duration        string         `db:"duration"`
-	IsVerbal        bool           `db:"is_verbal"`
-	IsSomatic       bool           `db:"is_somatic"`
-	HasMaterial     bool           `db:"is_material"`
-	MaterialContent sql.NullString `db:"material_content"`
-	IsRitual        bool           `db:"is_ritual"`
-	Distance        string         `db:"distance"`
-	SourceId        uuid.UUID      `db:"source_id"`
-	SourceName      string         `db:"sources_name"`
 }

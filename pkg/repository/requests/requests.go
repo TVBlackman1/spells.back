@@ -65,30 +65,3 @@ func SelectSpellsWithSourceName(searchParams dto.SearchSpellDto) *goqu.SelectDat
 	}
 	return request
 }
-
-//func main() {
-//	allSpellsRequest := selectSpellsWithSourceName(dto.SearchSpellDto{})
-//	//sqlRequest, _, _ := allSpellsRequest.ToSQL()
-//
-//	usedSpellsRequest := goqu.Dialect("postgres").
-//		From(fields.UrlSetToSpell().T()).
-//		Where(fields.UrlSetToSpell().UrlSetId().Eq("02677b6a-0e34-455c-a5da-1316e681eb44")).
-//		LeftJoin(fields.Spell().T(), goqu.On(fields.UrlSetToSpell().SpellId().Eq(fields.Spell().Id())))
-//	//sqlRequest2, _, _ := usedSpellsRequest.ToSQL()
-//	//fmt.Println(sqlRequest2)
-//	allSpellsWithMark := allSpellsRequest.LeftJoin(usedSpellsRequest.As("used"), goqu.On(
-//		fields.UrlSetToSpell().Aliased("used").SpellId().
-//			Eq(
-//				fields.Spell().Id())))
-//	allSpellsWithMark = allSpellsWithMark.SelectAppend(
-//		fields.UrlSetToSpell().Aliased("used").UrlSetId(),
-//	)
-//	readySql, _, _ := allSpellsWithMark.ToSQL()
-//	fmt.Println(readySql)
-//
-//	//allSpellsRequest.LeftJoin()
-//	//Where(fields.UrlSetToSpell().)
-//	//request.LeftJoin()
-//
-//	//fmt.Println(sqlRequest)
-//}

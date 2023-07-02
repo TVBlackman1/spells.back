@@ -97,18 +97,17 @@ func (handler *V1Handler) renameUrlSet(r chi.Router) {
 // @Router       /v1/url-sets/{unique}/all-spells [get]
 func (handler *V1Handler) getAllSpells(r chi.Router) {
 	r.Get("/{unique}/all-spells", func(w http.ResponseWriter, r *http.Request) {
-		userId, _ := uuid.FromString("957a9c1a-a725-49fc-903d-f727e58146b5")
-		spells, err := handler.usecases.Spell.GetSpellList(dto.UserId(userId),
-			dto.SearchSpellDto{}, pagination.Pagination{
-				Limit:      10,
-				PageNumber: 1,
-			})
+		uniqueLinkPart := chi.URLParam(r, "unique")
+		markedSpells, err := handler.usecases.UrlSet.GetAllSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
+			Limit:      10,
+			PageNumber: 1,
+		})
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		prettySpells := make([]prettySpell, len(spells), len(spells))
-		for index, spell := range spells {
-			prettySpells[index] = spellDtoToPretty(spell)
+		prettySpells := make([]prettySpellMarked, len(markedSpells), len(markedSpells))
+		for index, spell := range markedSpells {
+			prettySpells[index] = spellMarkedDtoToPretty(spell)
 		}
 		w.Header().Set("Content-Type", "application/json")
 		bytes, _ := json.Marshal(prettySpells)

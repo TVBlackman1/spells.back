@@ -71,21 +71,35 @@ func spellDtoToPretty(dto dto.SpellDto) prettySpell {
 	}
 }
 
+func spellMarkedDtoToPretty(dto dto.SpellMarkedDto) prettySpellMarked {
+	spellDto := dto.SpellDto
+	prettyPart := spellDtoToPretty(spellDto)
+	return prettySpellMarked{
+		prettySpell: prettyPart,
+		InSet:       dto.InSet,
+	}
+}
+
 type prettySpell struct {
-	Id                   string   `json:"id,omitempty"`
-	Name                 string   `json:"name,omitempty"`
-	Level                int      `json:"level,omitempty"`
-	Classes              []string `json:"classes,omitempty"`
-	Description          string   `json:"description,omitempty"`
-	CastingTime          string   `json:"casting_time,omitempty"`
-	Duration             string   `json:"duration,omitempty"`
-	IsVerbal             bool     `json:"is_verbal,omitempty"`
-	IsSomatic            bool     `json:"is_somatic,omitempty"`
-	HasMaterialComponent bool     `json:"has_material_component,omitempty"`
-	MaterialComponent    string   `json:"material_component,omitempty"`
-	MagicalSchool        string   `json:"magical_school,omitempty"`
-	Distance             string   `json:"distance,omitempty"`
-	IsRitual             bool     `json:"is_ritual,omitempty"`
-	SourceId             string   `json:"source_id,omitempty"`
-	SourceName           string   `json:"source_name,omitempty"`
+	Id                   string   `json:"id"`
+	Name                 string   `json:"name"`
+	Level                int      `json:"level"`
+	Classes              []string `json:"classes"`
+	Description          string   `json:"description"`
+	CastingTime          string   `json:"casting_time"`
+	Duration             string   `json:"duration"`
+	IsVerbal             bool     `json:"is_verbal"`
+	IsSomatic            bool     `json:"is_somatic"`
+	HasMaterialComponent bool     `json:"has_material_component"`
+	MaterialComponent    string   `json:"material_component"`
+	MagicalSchool        string   `json:"magical_school"`
+	Distance             string   `json:"distance"`
+	IsRitual             bool     `json:"is_ritual"`
+	SourceId             string   `json:"source_id"`
+	SourceName           string   `json:"source_name"`
+}
+
+type prettySpellMarked struct {
+	prettySpell
+	InSet bool `json:"in_set"`
 }
