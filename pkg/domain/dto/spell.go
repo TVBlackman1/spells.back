@@ -28,6 +28,11 @@ type SpellDto struct {
 	SourceName           string
 }
 
+type SpellMarkedDto struct {
+	SpellDto
+	InSet bool
+}
+
 type SetSpellDto struct {
 	Id                  SetSpellId
 	SetId               SetId

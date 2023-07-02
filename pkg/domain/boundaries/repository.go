@@ -54,6 +54,7 @@ type UrlSetsRepository interface {
 	GetById(id dto.SpellId) (dto.UrlSetDto, error)
 	GetByLink(link string) (dto.UrlSetDto, error)
 	GetSpells(id dto.UrlSetId, params dto.SearchSpellDto, pagination pagination.Pagination) ([]dto.SpellDto, error)
+	GetAllSpells(id dto.UrlSetId, params dto.SearchSpellDto, pagination pagination.Pagination) ([]dto.SpellMarkedDto, error)
 	RenameUrlSet(id dto.UrlSetId, newName string) error
 	AddSpell(id dto.UrlSetId, spellId dto.SpellId) error
 	RemoveSpell(id dto.UrlSetId, spellId dto.SpellId) error

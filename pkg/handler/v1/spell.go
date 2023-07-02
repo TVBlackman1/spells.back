@@ -27,7 +27,7 @@ func (handler *V1Handler) spellsRoute(r chi.Router) {
 func (handler *V1Handler) getSpells(r chi.Router) {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		userId, _ := uuid.FromString("957a9c1a-a725-49fc-903d-f727e58146b5")
-		// TODO shouldto use userId, _ := uuid.FromString("957a9c1a-a725-49fc-903d-f727e58146b5"); check why it works now with 0000000000000000
+		// TODO should to use userId, _ := uuid.FromString("957a9c1a-a725-49fc-903d-f727e58146b5"); check why it works now with 0000000000000000
 		spells, err := handler.usecases.Spell.GetSpellList(dto.UserId(userId),
 			dto.SearchSpellDto{}, pagination.Pagination{
 				Limit:      10,

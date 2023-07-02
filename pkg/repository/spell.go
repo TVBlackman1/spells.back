@@ -8,9 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"spells.tvblackman1.ru/lib/pagination"
-	"spells.tvblackman1.ru/lib/tribool"
 	"spells.tvblackman1.ru/pkg/domain/dto"
-	"strconv"
+	"spells.tvblackman1.ru/pkg/repository/requests"
 	"strings"
 )
 
@@ -63,43 +62,7 @@ func (rep *SpellsRepository) GetSpells(params dto.SearchSpellDto, pagination pag
 	limit := pagination.Limit
 	offset := pagination.Limit * (pagination.PageNumber - 1)
 
-	dialect := goqu.Dialect("postgres")
-	request := dialect.
-		Select("spells.id", goqu.T("spells").Col("name").As("spells_name"), "spells.level", "spells.description", "spells.casting_time",
-			"spells.duration", "spells.is_verbal", "spells.is_somatic", "spells.is_material",
-			"spells.material_content", "spells.magical_school", "spells.distance", "spells.is_ritual", "spells.source_id",
-			goqu.T("sources").Col("name").As("sources_name")).
-		From(SpellsDbName).
-		LeftJoin(goqu.T(SourcesDbName), goqu.On(goqu.I("spells.source_id").Eq(goqu.I("sources.id"))))
-	if len(params.Sources) > 0 {
-		sourcesToRequest := getSourcesEnumeration(params.Sources)
-		request = request.Where(goqu.C("sources.id").In(sourcesToRequest))
-	}
-	if len(params.EqualsName) > 0 {
-		request = request.Where(goqu.C("spells.name").Eq(params.EqualsName))
-	} else if len(params.LikeName) > 0 {
-		request = request.Where(goqu.C("spells.name").ILike(params.LikeName))
-	}
-	if params.IsVerbal != tribool.Unset {
-		request = request.Where(goqu.C("spells.is_verbal").Eq(params.IsVerbal == tribool.True))
-	}
-	if params.IsSomatic != tribool.Unset {
-		request = request.Where(goqu.C("spells.is_somatic").Eq(params.IsSomatic == tribool.True))
-	}
-	if params.HasMaterialComponent != tribool.Unset {
-		request = request.Where(goqu.C("spells.is_material").Eq(params.HasMaterialComponent == tribool.True))
-	}
-	if params.IsRitual != tribool.Unset {
-		request = request.Where(goqu.C("spells.is_ritual").Eq(params.IsRitual == tribool.True))
-	}
-	if len(params.Levels) > 0 {
-		levelsToRequest := getLevelsEnumeration(params.Levels)
-		request = request.Where(goqu.C("spells.level").In(levelsToRequest))
-	}
-	if len(params.MagicalSchools) > 0 {
-		schoolsToRequest := getSchoolsEnumeration(params.MagicalSchools)
-		request = request.Where(goqu.C("spells.magical_school").In(schoolsToRequest))
-	}
+	request := requests.SelectSpellsWithSourceName(params)
 	request = request.Order(goqu.C("spells_name").Asc())
 	request = request.Limit(uint(limit)).Offset(uint(offset))
 	var spells []SpellDb
@@ -142,46 +105,6 @@ func (rep *SpellsRepository) dbSpellToSpellDto(spellDb SpellDb) dto.SpellDto {
 		res.MaterialComponent = spellDb.MaterialContent.String
 	}
 	return res
-}
-
-// TODO refactor next methods
-func getSourcesEnumeration(ids []dto.SourceId) string {
-	sources := strings.Builder{}
-	for index, source := range ids {
-		sources.WriteRune('\'')
-		sources.WriteString(uuid.UUID(source).String())
-		sources.WriteRune('\'')
-		if index+1 < len(ids) {
-			sources.WriteRune(',')
-		}
-	}
-	return sources.String()
-}
-
-func getLevelsEnumeration(levels []int) string {
-	levelsStr := strings.Builder{}
-	for index, level := range levels {
-		levelsStr.WriteRune('\'')
-		levelsStr.WriteString(strconv.Itoa(level))
-		levelsStr.WriteRune('\'')
-		if index+1 < len(levels) {
-			levelsStr.WriteRune(',')
-		}
-	}
-	return levelsStr.String()
-}
-
-func getSchoolsEnumeration(schools []string) string {
-	schoolsStr := strings.Builder{}
-	for index, school := range schools {
-		schoolsStr.WriteRune('\'')
-		schoolsStr.WriteString(school)
-		schoolsStr.WriteRune('\'')
-		if index+1 < len(schools) {
-			schoolsStr.WriteRune(',')
-		}
-	}
-	return schoolsStr.String()
 }
 
 type SpellDb struct {

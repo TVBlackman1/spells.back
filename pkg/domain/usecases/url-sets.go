@@ -61,13 +61,21 @@ func (usecase *UrlSetUseCase) AddSpell(linkPart string, spellId dto.SpellId) err
 }
 
 func (usecase *UrlSetUseCase) GetSpells(linkPart string, search dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellDto, error) {
-	// TODO if spell exists, if link exists, if spell not in set
 	link := usecase.linkFromLinkPart(linkPart)
 	urlSet, err := usecase.repository.UrlSets.GetByLink(link)
 	if err != nil {
 		return []dto.SpellDto{}, err
 	}
 	return usecase.repository.UrlSets.GetSpells(urlSet.Id, search, pag)
+}
+
+func (usecase *UrlSetUseCase) GetAllSpells(linkPart string, search dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellMarkedDto, error) {
+	link := usecase.linkFromLinkPart(linkPart)
+	urlSet, err := usecase.repository.UrlSets.GetByLink(link)
+	if err != nil {
+		return []dto.SpellMarkedDto{}, err
+	}
+	return usecase.repository.UrlSets.GetAllSpells(urlSet.Id, search, pag)
 }
 
 func (usecase *UrlSetUseCase) generateRandomLinkPart() string {
