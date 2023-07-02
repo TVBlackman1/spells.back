@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"math/rand"
+	"spells.tvblackman1.ru/lib/pagination"
 	"spells.tvblackman1.ru/pkg/domain/boundaries"
 	"spells.tvblackman1.ru/pkg/domain/dto"
 	"strings"
@@ -47,6 +48,26 @@ func (usecase *UrlSetUseCase) RenameUrlSet(linkPart string, newName string) erro
 func (usecase *UrlSetUseCase) GetUrlSet(linkPart string) (dto.UrlSetDto, error) {
 	link := usecase.linkFromLinkPart(linkPart)
 	return usecase.repository.UrlSets.GetByLink(link)
+}
+
+func (usecase *UrlSetUseCase) AddSpell(linkPart string, spellId dto.SpellId) error {
+	// TODO if spell exists, if link exists, if spell not in set
+	link := usecase.linkFromLinkPart(linkPart)
+	urlSet, err := usecase.repository.UrlSets.GetByLink(link)
+	if err != nil {
+		return err
+	}
+	return usecase.repository.UrlSets.AddSpell(urlSet.Id, spellId)
+}
+
+func (usecase *UrlSetUseCase) GetSpells(linkPart string, search dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellDto, error) {
+	// TODO if spell exists, if link exists, if spell not in set
+	link := usecase.linkFromLinkPart(linkPart)
+	urlSet, err := usecase.repository.UrlSets.GetByLink(link)
+	if err != nil {
+		return []dto.SpellDto{}, err
+	}
+	return usecase.repository.UrlSets.GetSpells(urlSet.Id, search, pag)
 }
 
 func (usecase *UrlSetUseCase) generateRandomLinkPart() string {

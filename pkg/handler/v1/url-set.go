@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
+	"github.com/gofrs/uuid"
 	"net/http"
+	"spells.tvblackman1.ru/lib/pagination"
 	"spells.tvblackman1.ru/pkg/domain/dto"
-	//"spells.tvblackman1.ru/pkg/domain/dto"
 )
 
 // /v1/spells
@@ -15,6 +15,9 @@ func (handler *V1Handler) urlSetsRoute(r chi.Router) {
 	handler.createUrlSet(r)
 	handler.getUrlSet(r)
 	handler.renameUrlSet(r)
+	handler.getAllSpells(r)
+	handler.addSpellToUrlSet(r)
+	handler.getSpellsOfUrlSet(r)
 }
 
 // ShowAccount godoc
@@ -81,23 +84,106 @@ func (handler *V1Handler) renameUrlSet(r chi.Router) {
 	})
 }
 
+// [1], 4
+
+// ShowAccount godoc
+// @Summary      Get list of all spells
+// @Description  get all spells. Overview for adding/removing spells to/from set
+// @Tags         url-sets
+// @Param        unique   path  string  true  "url set unique link part"
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  []prettySpell
+// @Router       /v1/url-sets/{unique}/all-spells [get]
 func (handler *V1Handler) getAllSpells(r chi.Router) {
 	r.Get("/{unique}/all-spells", func(w http.ResponseWriter, r *http.Request) {
+		userId, _ := uuid.FromString("957a9c1a-a725-49fc-903d-f727e58146b5")
+		spells, err := handler.usecases.Spell.GetSpellList(dto.UserId(userId),
+			dto.SearchSpellDto{}, pagination.Pagination{
+				Limit:      10,
+				PageNumber: 1,
+			})
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		prettySpells := make([]prettySpell, len(spells), len(spells))
+		for index, spell := range spells {
+			prettySpells[index] = spellDtoToPretty(spell)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		bytes, _ := json.Marshal(prettySpells)
+		_, err = w.Write(bytes)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 	})
 }
 
+// [2]
+
+// ShowAccount godoc
+// @Summary      Add spell to url set
+// @Description  Can add spell to url set
+// @Tags         url-sets
+// @Param        unique   path  string  true  "url set unique link part"
+// @Param        spellId  path  string  true  "id of spell"
+// @Accept       json
+// @Produce      json
+// @Success      200
+// @Router       /v1/url-sets/{unique}/add/{spellId} [post]
 func (handler *V1Handler) addSpellToUrlSet(r chi.Router) {
 	r.Post("/{unique}/add/{spellId}", func(w http.ResponseWriter, r *http.Request) {
+		uniqueLinkPart := chi.URLParam(r, "unique")
+		spellIdURLParam := chi.URLParam(r, "spellId")
+		_spellId, err := uuid.FromString(spellIdURLParam)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		spellId := dto.SpellId(_spellId)
+		handler.usecases.UrlSet.AddSpell(uniqueLinkPart, spellId)
 	})
 }
 
+// 5
 func (handler *V1Handler) removeSpellFromUrlSet(r chi.Router) {
 	r.Delete("/{unique}/remove/{spellId}", func(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// [3]
+
+// ShowAccount godoc
+// @Summary      Get list of url set spells
+// @Description  Get only spells in url set
+// @Tags         url-sets
+// @Param        unique   path  string  true  "url set unique link part"
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  []prettySpell
+// @Router       /v1/url-sets/{unique}/spells [get]
 func (handler *V1Handler) getSpellsOfUrlSet(r chi.Router) {
 	r.Get("/{unique}/spells", func(w http.ResponseWriter, r *http.Request) {
+		uniqueLinkPart := chi.URLParam(r, "unique")
+		spells, err := handler.usecases.UrlSet.GetSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
+			Limit:      10,
+			PageNumber: 1,
+		})
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		prettySpells := make([]prettySpell, len(spells), len(spells))
+		for index, spell := range spells {
+			prettySpells[index] = spellDtoToPretty(spell)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		bytes, _ := json.Marshal(prettySpells)
+		_, err = w.Write(bytes)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 	})
 }
 

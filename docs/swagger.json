@@ -133,6 +133,112 @@
                     }
                 }
             }
+        },
+        "/v1/url-sets/{unique}/add/{spellId}": {
+            "post": {
+                "description": "Can add spell to url set",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "url-sets"
+                ],
+                "summary": "Add spell to url set",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "url set unique link part",
+                        "name": "unique",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of spell",
+                        "name": "spellId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/v1/url-sets/{unique}/all-spells": {
+            "get": {
+                "description": "get all spells. Overview for adding/removing spells to/from set",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "url-sets"
+                ],
+                "summary": "Get list of all spells",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "url set unique link part",
+                        "name": "unique",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/v1.prettySpell"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/url-sets/{unique}/spells": {
+            "get": {
+                "description": "Get only spells in url set",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "url-sets"
+                ],
+                "summary": "Get list of url set spells",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "url set unique link part",
+                        "name": "unique",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/v1.prettySpell"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
