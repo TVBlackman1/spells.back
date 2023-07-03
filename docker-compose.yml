@@ -1,0 +1,67 @@
+# docker compose version 2.1+
+
+version: '1'
+services:
+  migrations:
+    container_name: migration
+    image: migrate/migrate:v4.16.2-amd64 # :v4.16.2-arm64
+    command: ["-path", "/migrations", "-database",  "postgres://${POSTGRES_USER}:${POSTGRES_PASS}@db:5432/${POSTGRES_DBNAME}?sslmode=disable", "up"]
+    volumes:
+      - ${PWD}/init/migrations:/migrations
+    depends_on:
+      db:
+        condition: service_healthy
+  seeds:
+    container_name: seeds
+    build:
+      context: ./
+      dockerfile: seeds.Dockerfile
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASS=${POSTGRES_PASS}
+      - POSTGRES_DBNAME=${POSTGRES_DBNAME}
+      - APP_ENV=develop
+    volumes:
+      - ${PWD}/init/seeds:/application/init/seeds
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+  db:
+    container_name: db
+    image: postgres:bullseye
+    restart: always
+    volumes:
+      - "spell-back-pg:/var/lib/postgresql/data"
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASS}
+      - POSTGRES_DB=${POSTGRES_DBNAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+  main:
+    container_name: backend
+    ports:
+      - "${PORT}:8080"
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASS=${POSTGRES_PASS}
+      - POSTGRES_DBNAME=${POSTGRES_DBNAME}
+      - APP_ENV=develop
+    depends_on:
+      seeds:
+        condition: service_completed_successfully
+
+volumes:
+  spell-back-pg: {}

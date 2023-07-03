@@ -7,6 +7,7 @@ import (
 	"path"
 	"spells.tvblackman1.ru/lib/config"
 	importer_v2 "spells.tvblackman1.ru/lib/importer.v2"
+	"spells.tvblackman1.ru/lib/pagination"
 	"spells.tvblackman1.ru/lib/postgres"
 	"spells.tvblackman1.ru/pkg/domain/dto"
 	"spells.tvblackman1.ru/pkg/domain/usecases"
@@ -39,6 +40,13 @@ func main() {
 	user, err := setUser(useCases)
 	if err != nil {
 		fmt.Println(err)
+	}
+	_, meta, err := repo.Spells.GetSpells(dto.SearchSpellDto{}, pagination.Pagination{
+		Limit:      1,
+		PageNumber: 0,
+	})
+	if err != nil || meta.All > 0 {
+		os.Exit(0)
 	}
 
 	directoryPath := path.Dir("./init/seeds/spell.categories/")
