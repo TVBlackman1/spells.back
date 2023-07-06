@@ -91,16 +91,17 @@ func (handler *V1Handler) renameUrlSet(r chi.Router) {
 // @Description  get all spells. Overview for adding/removing spells to/from set
 // @Tags         url-sets
 // @Param        unique   path  string  true  "url set unique link part"
+// @Param        page    query     int  false  "page number"
 // @Accept       json
 // @Produce      json
-// @Success      200  {object}  []prettySpell
+// @Success      200  {object}  allSpellsReturn
 // @Router       /v1/url-sets/{unique}/all-spells [get]
 func (handler *V1Handler) getAllSpells(r chi.Router) {
 	r.Get("/{unique}/all-spells", func(w http.ResponseWriter, r *http.Request) {
 		pageQueryParam := r.URL.Query().Get("page")
 		pageNumber, _ := strconv.Atoi(pageQueryParam)
 		uniqueLinkPart := chi.URLParam(r, "unique")
-		markedSpells, _, err := handler.usecases.UrlSet.GetAllSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
+		markedSpells, meta, err := handler.usecases.UrlSet.GetAllSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
 			Limit:      15,
 			PageNumber: pageNumber,
 		})
@@ -111,8 +112,12 @@ func (handler *V1Handler) getAllSpells(r chi.Router) {
 		for index, spell := range markedSpells {
 			prettySpells[index] = spellMarkedDtoToPretty(spell)
 		}
+		ret := allSpellsReturn{
+			Meta:   meta,
+			Spells: prettySpells,
+		}
 		w.Header().Set("Content-Type", "application/json")
-		bytes, _ := json.Marshal(prettySpells)
+		bytes, _ := json.Marshal(ret)
 		_, err = w.Write(bytes)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -174,18 +179,19 @@ func (handler *V1Handler) removeSpellFromUrlSet(r chi.Router) {
 // @Description  Get only spells in url set
 // @Tags         url-sets
 // @Param        unique   path  string  true  "url set unique link part"
+// @Param        page    query     int  false  "page number"
 // @Accept       json
 // @Produce      json
-// @Success      200  {object}  []prettySpell
+// @Success      200  {object}  spellsReturn
 // @Router       /v1/url-sets/{unique}/spells [get]
 func (handler *V1Handler) getSpellsOfUrlSet(r chi.Router) {
 	r.Get("/{unique}/spells", func(w http.ResponseWriter, r *http.Request) {
 		pageQueryParam := r.URL.Query().Get("page")
 		pageNumber, _ := strconv.Atoi(pageQueryParam)
 		uniqueLinkPart := chi.URLParam(r, "unique")
-		spells, _, err := handler.usecases.UrlSet.GetSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
-			Limit:      pageNumber,
-			PageNumber: 1,
+		spells, meta, err := handler.usecases.UrlSet.GetSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
+			Limit:      15,
+			PageNumber: pageNumber,
 		})
 		if err != nil {
 			fmt.Println(err.Error())
@@ -194,8 +200,12 @@ func (handler *V1Handler) getSpellsOfUrlSet(r chi.Router) {
 		for index, spell := range spells {
 			prettySpells[index] = spellDtoToPretty(spell)
 		}
+		ret := spellsReturn{
+			Meta:   meta,
+			Spells: prettySpells,
+		}
 		w.Header().Set("Content-Type", "application/json")
-		bytes, _ := json.Marshal(prettySpells)
+		bytes, _ := json.Marshal(ret)
 		_, err = w.Write(bytes)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -220,4 +230,14 @@ type prettySetDto struct {
 
 type renameUrlSetDto struct {
 	Name string `json:"name,omitempty"`
+}
+
+type allSpellsReturn struct {
+	Meta   pagination.Meta     `json:"meta"`
+	Spells []prettySpellMarked `json:"spells"`
+}
+
+type spellsReturn struct {
+	Meta   pagination.Meta `json:"meta"`
+	Spells []prettySpell   `json:"spells"`
 }

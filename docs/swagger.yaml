@@ -1,5 +1,27 @@
 basePath: /api
 definitions:
+  pagination.Meta:
+    properties:
+      all_records:
+        type: integer
+      on_current_page:
+        type: integer
+      page_limit:
+        type: integer
+      page_number:
+        type: integer
+      pages:
+        type: integer
+    type: object
+  v1.allSpellsReturn:
+    properties:
+      meta:
+        $ref: '#/definitions/pagination.Meta'
+      spells:
+        items:
+          $ref: '#/definitions/v1.prettySpellMarked'
+        type: array
+    type: object
   v1.prettySetDto:
     properties:
       id:
@@ -46,10 +68,58 @@ definitions:
       source_name:
         type: string
     type: object
+  v1.prettySpellMarked:
+    properties:
+      casting_time:
+        type: string
+      classes:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      distance:
+        type: string
+      duration:
+        type: string
+      has_material_component:
+        type: boolean
+      id:
+        type: string
+      in_set:
+        type: boolean
+      is_ritual:
+        type: boolean
+      is_somatic:
+        type: boolean
+      is_verbal:
+        type: boolean
+      level:
+        type: integer
+      magical_school:
+        type: string
+      material_component:
+        type: string
+      name:
+        type: string
+      source_id:
+        type: string
+      source_name:
+        type: string
+    type: object
   v1.renameUrlSetDto:
     properties:
       name:
         type: string
+    type: object
+  v1.spellsReturn:
+    properties:
+      meta:
+        $ref: '#/definitions/pagination.Meta'
+      spells:
+        items:
+          $ref: '#/definitions/v1.prettySpell'
+        type: array
     type: object
 externalDocs:
   description: OpenAPI
@@ -179,15 +249,17 @@ paths:
         name: unique
         required: true
         type: string
+      - description: page number
+        in: query
+        name: page
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/v1.prettySpell'
-            type: array
+            $ref: '#/definitions/v1.allSpellsReturn'
       summary: Get list of all spells
       tags:
       - url-sets
@@ -226,15 +298,17 @@ paths:
         name: unique
         required: true
         type: string
+      - description: page number
+        in: query
+        name: page
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/v1.prettySpell'
-            type: array
+            $ref: '#/definitions/v1.spellsReturn'
       summary: Get list of url set spells
       tags:
       - url-sets

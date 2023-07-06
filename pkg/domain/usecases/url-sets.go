@@ -67,7 +67,7 @@ func (usecase *UrlSetUseCase) AddSpell(linkPart string, spellId dto.SpellId) err
 		fmt.Printf("can not get spell with id %s\n", uuid.UUID(spellId).String())
 		return err
 	}
-	spellAlreadyExists := meta.All != 0
+	spellAlreadyExists := meta.AllRecords != 0
 	if spellAlreadyExists {
 		return errors.New("already exists")
 	}

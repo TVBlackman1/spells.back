@@ -197,16 +197,19 @@ const docTemplate = `{
                         "name": "unique",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "page",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/v1.prettySpell"
-                            }
+                            "$ref": "#/definitions/v1.allSpellsReturn"
                         }
                     }
                 }
@@ -268,16 +271,19 @@ const docTemplate = `{
                         "name": "unique",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "page",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/v1.prettySpell"
-                            }
+                            "$ref": "#/definitions/v1.spellsReturn"
                         }
                     }
                 }
@@ -285,6 +291,40 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "pagination.Meta": {
+            "type": "object",
+            "properties": {
+                "all_records": {
+                    "type": "integer"
+                },
+                "on_current_page": {
+                    "type": "integer"
+                },
+                "page_limit": {
+                    "type": "integer"
+                },
+                "page_number": {
+                    "type": "integer"
+                },
+                "pages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.allSpellsReturn": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/pagination.Meta"
+                },
+                "spells": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.prettySpellMarked"
+                    }
+                }
+            }
+        },
         "v1.prettySetDto": {
             "type": "object",
             "properties": {
@@ -355,11 +395,84 @@ const docTemplate = `{
                 }
             }
         },
+        "v1.prettySpellMarked": {
+            "type": "object",
+            "properties": {
+                "casting_time": {
+                    "type": "string"
+                },
+                "classes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "distance": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string"
+                },
+                "has_material_component": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "in_set": {
+                    "type": "boolean"
+                },
+                "is_ritual": {
+                    "type": "boolean"
+                },
+                "is_somatic": {
+                    "type": "boolean"
+                },
+                "is_verbal": {
+                    "type": "boolean"
+                },
+                "level": {
+                    "type": "integer"
+                },
+                "magical_school": {
+                    "type": "string"
+                },
+                "material_component": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "source_id": {
+                    "type": "string"
+                },
+                "source_name": {
+                    "type": "string"
+                }
+            }
+        },
         "v1.renameUrlSetDto": {
             "type": "object",
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "v1.spellsReturn": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/pagination.Meta"
+                },
+                "spells": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.prettySpell"
+                    }
                 }
             }
         }
