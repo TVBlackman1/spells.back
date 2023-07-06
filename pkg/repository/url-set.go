@@ -73,10 +73,11 @@ func (rep *UrlSetsRepository) GetSpells(id dto.UrlSetId, params dto.SearchSpellD
 	limit := pag.Limit
 	offset := pag.Limit * (pag.PageNumber - 1)
 
+	urlSetId := uuid.UUID(id).String()
 	allSpellsRequest := requests.SelectSpellsWithSourceName(params)
 	usedSpellsRequest := goqu.Dialect("postgres").
 		From(fields.UrlSetToSpell().T()).
-		Where(fields.UrlSetToSpell().UrlSetId().Eq("02677b6a-0e34-455c-a5da-1316e681eb44")).
+		Where(fields.UrlSetToSpell().UrlSetId().Eq(urlSetId)).
 		InnerJoin(allSpellsRequest.As("all"),
 			goqu.On(fields.UrlSetToSpell().SpellId().Eq(fields.Spell().Aliased("all").Id())))
 	usedSpellsRequest = usedSpellsRequest.Select(goqu.I("all.*"))

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"spells.tvblackman1.ru/lib/pagination"
 	"spells.tvblackman1.ru/pkg/domain/dto"
+	"strconv"
 )
 
 // /v1/spells
@@ -96,10 +97,12 @@ func (handler *V1Handler) renameUrlSet(r chi.Router) {
 // @Router       /v1/url-sets/{unique}/all-spells [get]
 func (handler *V1Handler) getAllSpells(r chi.Router) {
 	r.Get("/{unique}/all-spells", func(w http.ResponseWriter, r *http.Request) {
+		pageQueryParam := r.URL.Query().Get("page")
+		pageNumber, _ := strconv.Atoi(pageQueryParam)
 		uniqueLinkPart := chi.URLParam(r, "unique")
 		markedSpells, _, err := handler.usecases.UrlSet.GetAllSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
-			Limit:      10,
-			PageNumber: 1,
+			Limit:      15,
+			PageNumber: pageNumber,
 		})
 		if err != nil {
 			fmt.Println(err.Error())
@@ -177,9 +180,11 @@ func (handler *V1Handler) removeSpellFromUrlSet(r chi.Router) {
 // @Router       /v1/url-sets/{unique}/spells [get]
 func (handler *V1Handler) getSpellsOfUrlSet(r chi.Router) {
 	r.Get("/{unique}/spells", func(w http.ResponseWriter, r *http.Request) {
+		pageQueryParam := r.URL.Query().Get("page")
+		pageNumber, _ := strconv.Atoi(pageQueryParam)
 		uniqueLinkPart := chi.URLParam(r, "unique")
 		spells, _, err := handler.usecases.UrlSet.GetSpells(uniqueLinkPart, dto.SearchSpellDto{}, pagination.Pagination{
-			Limit:      10,
+			Limit:      pageNumber,
 			PageNumber: 1,
 		})
 		if err != nil {
