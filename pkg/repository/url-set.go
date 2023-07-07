@@ -83,6 +83,11 @@ func (rep *UrlSetsRepository) GetSpells(id dto.UrlSetId, params dto.SearchSpellD
 	usedSpellsRequest = usedSpellsRequest.Select(goqu.I("all.*"))
 
 	requestCount := requests.CountRows(usedSpellsRequest)
+
+	usedSpellsRequest = usedSpellsRequest.Order(goqu.C("level").Asc())
+	// TODO usedSpellsRequest = usedSpellsRequest.Order(fields.Spell().Level().Asc()) like this
+	usedSpellsRequest = usedSpellsRequest.OrderAppend(goqu.C("spells_name").Asc())
+
 	usedSpellsRequest = usedSpellsRequest.Limit(uint(limit)).Offset(uint(offset))
 
 	var spells []dbdto.SpellDb
@@ -128,9 +133,12 @@ func (rep *UrlSetsRepository) GetAllSpells(id dto.UrlSetId, params dto.SearchSpe
 
 	requestCount := requests.CountRows(allSpellsWithMark)
 
+	allSpellsWithMark = allSpellsRequest.Order(fields.Spell().Level().Asc())
 	allSpellsWithMark = allSpellsWithMark.Order(fields.Spell().Name().Asc())
 	allSpellsWithMark = allSpellsWithMark.Limit(uint(limit)).Offset(uint(offset))
 	sqlRequest, _, _ := allSpellsWithMark.ToSQL()
+
+	fmt.Println(sqlRequest)
 
 	var spells []dbdto.SpellMarkedDb
 	var count int

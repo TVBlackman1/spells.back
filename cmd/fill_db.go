@@ -45,7 +45,7 @@ func main() {
 		Limit:      1,
 		PageNumber: 0,
 	})
-	if err != nil || meta.All > 0 {
+	if err != nil || meta.AllRecords > 0 {
 		os.Exit(0)
 	}
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/microcosm-cc/bluemonday"
 	"math/rand"
 	"spells.tvblackman1.ru/lib/pagination"
 	"spells.tvblackman1.ru/pkg/domain/boundaries"
@@ -90,7 +91,12 @@ func (usecase *UrlSetUseCase) GetSpells(linkPart string, search dto.SearchSpellD
 	if err != nil {
 		return []dto.SpellDto{}, pagination.Meta{}, err
 	}
-	return usecase.repository.UrlSets.GetSpells(urlSet.Id, search, pag)
+	spells, meta, err := usecase.repository.UrlSets.GetSpells(urlSet.Id, search, pag)
+	p := bluemonday.StripTagsPolicy()
+	for index := range spells {
+		spells[index].Description = p.Sanitize(spells[index].Description)
+	}
+	return spells, meta, err
 }
 
 func (usecase *UrlSetUseCase) GetAllSpells(linkPart string, search dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellMarkedDto, pagination.Meta, error) {
