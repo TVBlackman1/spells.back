@@ -19,10 +19,11 @@ func init() {
 
 type UrlSetUseCase struct {
 	repository *boundaries.Repository
+	usecases   *UseCases
 }
 
-func NewUrlSetUseCase(repository *boundaries.Repository) *UrlSetUseCase {
-	return &UrlSetUseCase{repository}
+func NewUrlSetUseCase(repository *boundaries.Repository, usecases *UseCases) *UrlSetUseCase {
+	return &UrlSetUseCase{repository, usecases}
 }
 
 func (usecase *UrlSetUseCase) CreateUrlSet() (string, error) {
@@ -108,6 +109,40 @@ func (usecase *UrlSetUseCase) GetAllSpells(linkPart string, search dto.SearchSpe
 	return usecase.repository.UrlSets.GetAllSpells(urlSet.Id, search, pag)
 }
 
+func (usecase *UrlSetUseCase) CreateUrlSetWithSpells(urlSetName string, spellNames []string) (string, error) {
+	link, err := usecase.CreateUrlSet()
+	if err != nil {
+		fmt.Println("Can not create url set")
+		return "", err
+	}
+	usecase.RenameUrlSet(usecase.linkPartFromLink(link), urlSetName)
+	for _, name := range spellNames {
+		list, meta, err := usecase.usecases.Spell.GetCommonSpellList(dto.SearchSpellDto{
+			EqualsName: name,
+		}, pagination.Pagination{
+			Limit: 1,
+		})
+		if err != nil {
+			return "", err
+		}
+		if meta.AllRecords > 0 {
+			fmt.Println(list[0].Name, list[0].Id)
+			usecase.AddSpell(
+				usecase.linkPartFromLink(link),
+				list[0].Id)
+		} else {
+			fmt.Printf("Not found: %s\n", name)
+		}
+	}
+	return link, nil
+	//link := usecase.linkFromLinkPart(linkPart)
+	//urlSet, err := usecase.repository.UrlSets.GetByLink(link)
+	//if err != nil {
+	//	return []dto.SpellMarkedDto{}, pagination.Meta{}, err
+	//}
+	//return usecase.repository.UrlSets.GetAllSpells(urlSet.Id, search, pag)
+}
+
 func (usecase *UrlSetUseCase) generateRandomLinkPart() string {
 	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 	builder := strings.Builder{}
@@ -121,4 +156,9 @@ func (usecase *UrlSetUseCase) generateRandomLinkPart() string {
 
 func (usecase *UrlSetUseCase) linkFromLinkPart(linkPart string) string {
 	return fmt.Sprintf("http://localhost:8080/api/v1/url-sets/%s", linkPart)
+}
+
+func (usecase *UrlSetUseCase) linkPartFromLink(link string) string {
+	slashIndex := strings.LastIndex(link, "/")
+	return link[slashIndex+1:]
 }

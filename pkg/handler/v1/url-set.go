@@ -20,6 +20,7 @@ func (handler *V1Handler) urlSetsRoute(r chi.Router) {
 	handler.addSpellToUrlSet(r)
 	handler.getSpellsOfUrlSet(r)
 	handler.removeSpellFromUrlSet(r)
+	handler.createUrlSetWithSpells(r)
 }
 
 // ShowAccount godoc
@@ -214,6 +215,24 @@ func (handler *V1Handler) getSpellsOfUrlSet(r chi.Router) {
 	})
 }
 
+// ShowAccount godoc
+// @Summary      Create url set with spell names
+// @Description  Create url set with spell names
+// @Tags         url-sets-integration
+// @Param		 body	body		urlSetFastCreating	true	"Names of spells"
+// @Accept       json
+// @Produce      json
+// @Success      200 {string} string "link to url set"
+// @Router       /v1/url-sets/i [post]
+func (handler *V1Handler) createUrlSetWithSpells(r chi.Router) {
+	r.Post("/i", func(w http.ResponseWriter, r *http.Request) {
+		var body urlSetFastCreating
+		json.NewDecoder(r.Body).Decode(&body)
+		ret, _ := handler.usecases.UrlSet.CreateUrlSetWithSpells(body.UrlSetName, body.SpellNames)
+		w.Write([]byte(ret))
+	})
+}
+
 func urlSetDtoToPretty(dto dto.UrlSetDto) prettySetDto {
 	return prettySetDto{
 		Id:   uuid.UUID(dto.Id).String(),
@@ -230,6 +249,11 @@ type prettySetDto struct {
 
 type renameUrlSetDto struct {
 	Name string `json:"name,omitempty"`
+}
+
+type urlSetFastCreating struct {
+	SpellNames []string `json:"spell_names"`
+	UrlSetName string   `json:"name"`
 }
 
 type allSpellsReturn struct {

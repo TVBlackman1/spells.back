@@ -112,6 +112,13 @@ definitions:
       name:
         type: string
     type: object
+  v1.spellNames:
+    properties:
+      names:
+        items:
+          type: string
+        type: array
+    type: object
   v1.spellsReturn:
     properties:
       meta:
@@ -312,6 +319,28 @@ paths:
       summary: Get list of url set spells
       tags:
       - url-sets
+  /v1/url-sets/i:
+    post:
+      consumes:
+      - application/json
+      description: Create url set with spell names
+      parameters:
+      - description: Names of spells
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/v1.spellNames'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: link to url set
+          schema:
+            type: string
+      summary: Create url set with spell names
+      tags:
+      - url-sets-integration
 securityDefinitions:
   BasicAuth:
     type: basic

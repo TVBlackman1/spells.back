@@ -11,11 +11,13 @@ type UseCases struct {
 }
 
 func NewUseCases(repository *boundaries.Repository) *UseCases {
-	return &UseCases{
-		Set:    NewSetUseCase(repository),
-		Source: NewSourceUseCase(repository),
-		User:   NewUserUseCase(repository),
-		Spell:  NewSpellUseCase(repository),
-		UrlSet: NewUrlSetUseCase(repository),
-	}
+	usecases := new(UseCases)
+
+	usecases.Set = NewSetUseCase(repository)
+	usecases.Source = NewSourceUseCase(repository)
+	usecases.User = NewUserUseCase(repository)
+	usecases.Spell = NewSpellUseCase(repository)
+	usecases.UrlSet = NewUrlSetUseCase(repository, usecases)
+
+	return usecases
 }

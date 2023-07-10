@@ -67,6 +67,40 @@
                 }
             }
         },
+        "/v1/url-sets/i": {
+            "post": {
+                "description": "Create url set with spell names",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "url-sets-integration"
+                ],
+                "summary": "Create url set with spell names",
+                "parameters": [
+                    {
+                        "description": "Names of spells",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.spellNames"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "link to url set",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/url-sets/{unique}": {
             "get": {
                 "description": "Get basic info about url set. Just name.",
@@ -452,6 +486,17 @@
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "v1.spellNames": {
+            "type": "object",
+            "properties": {
+                "names": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

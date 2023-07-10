@@ -67,6 +67,13 @@ func (usecase *SpellUseCase) GetSpellList(userId dto.UserId, searchDto dto.Searc
 	return usecase.repository.Spells.GetSpells(searchDto, pag)
 }
 
+func (usecase *SpellUseCase) GetCommonSpellList(searchDto dto.SearchSpellDto, pag pagination.Pagination) ([]dto.SpellDto, pagination.Meta, error) {
+	if len(searchDto.Sources) == 0 {
+		// TODO default sources + user custom sources (extern libs or written by this user)
+	}
+	return usecase.repository.Spells.GetSpells(searchDto, pag)
+}
+
 func (usecase *SpellUseCase) checkMaterialComponent(spellDto dto.CreateSpellDto) bool {
 	hasMaterialComponentText := len(spellDto.MaterialComponent) > 0
 	return hasMaterialComponentText == spellDto.HasMaterialComponent
